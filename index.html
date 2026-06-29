@@ -1,113 +1,1182 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Anona Security Pano Camera 可用性测试看板</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <style>
-    body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; background: radial-gradient(circle at top left, rgba(20,184,166,.16), transparent 34rem), linear-gradient(135deg,#f8fafc 0%,#eef6ff 46%,#f8fafc 100%); color:#0f172a; }
-    .glass { background: rgba(255,255,255,.88); border:1px solid rgba(226,232,240,.92); box-shadow:0 18px 50px rgba(15,23,42,.08); backdrop-filter:blur(18px); }
-    .tab-active { background:#0f172a; color:white; box-shadow:0 10px 28px rgba(15,23,42,.18); }
-    .chart-box { height:260px; position:relative; }
-    .soft-scroll::-webkit-scrollbar{height:8px;width:8px}.soft-scroll::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:999px}.soft-scroll::-webkit-scrollbar-track{background:transparent}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>猫鼬工厂 · 产品体验设计课程纪要</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+SC:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-card: #161616;
+            --bg-card-hover: #1a1a1a;
+            --border-color: #262626;
+            --border-light: #333333;
+            --text-primary: #fafafa;
+            --text-secondary: #a3a3a3;
+            --text-tertiary: #737373;
+            --accent-blue: #3b82f6;
+            --accent-blue-dim: #1d4ed8;
+            --accent-orange: #f59e0b;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-purple: #8b5cf6;
+            --accent-cyan: #06b6d4;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+
+        body {
+            font-family: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-primary); }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #444; }
+
+        /* Day 2 accent */
+        .day2-badge { background: rgba(139, 92, 246, 0.15) !important; color: var(--accent-purple) !important; border-color: rgba(139, 92, 246, 0.3) !important; }
+        .day2-tag { background: rgba(139, 92, 246, 0.15) !important; color: var(--accent-purple) !important; }
+
+        /* Navigation */
+        .nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+            background: rgba(10, 10, 10, 0.85);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 24px; height: 64px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .nav-brand { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 15px; letter-spacing: -0.3px; }
+        .nav-brand-icon { width: 32px; height: 32px; background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple)); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+        .nav-links { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; }
+        .nav-link { padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; color: var(--text-secondary); text-decoration: none; transition: all 0.2s ease; }
+        .nav-link:hover { color: var(--text-primary); background: rgba(255,255,255,0.06); }
+
+        /* Hero */
+        .hero {
+            min-height: 100vh; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; text-align: center;
+            padding: 120px 24px 80px; position: relative; overflow: hidden;
+        }
+        .hero::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(ellipse at 30% 20%, rgba(59,130,246,0.08) 0%, transparent 50%),
+                        radial-gradient(ellipse at 70% 80%, rgba(139,92,246,0.06) 0%, transparent 50%);
+            animation: heroGlow 8s ease-in-out infinite alternate;
+        }
+        @keyframes heroGlow { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(-5%,3%) scale(1.05); } }
+
+        .hero-badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2); border-radius: 100px; font-size: 12px; font-weight: 500; color: var(--accent-blue); margin-bottom: 32px; position: relative; z-index: 1; }
+        .hero-badge-dot { width: 6px; height: 6px; background: var(--accent-blue); border-radius: 50%; animation: pulse 2s ease-in-out infinite; }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+        .hero-title { font-size: clamp(40px, 6vw, 72px); font-weight: 900; letter-spacing: -2px; line-height: 1.1; margin-bottom: 24px; position: relative; z-index: 1; }
+        .hero-title-gradient { background: linear-gradient(135deg, #fff 0%, #a3a3a3 50%, #fff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .hero-subtitle { font-size: clamp(16px, 2vw, 20px); color: var(--text-secondary); max-width: 640px; margin: 0 auto 48px; font-weight: 400; line-height: 1.7; position: relative; z-index: 1; }
+        .hero-meta { display: flex; gap: 32px; flex-wrap: wrap; justify-content: center; position: relative; z-index: 1; }
+        .hero-meta-item { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .hero-meta-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-tertiary); font-weight: 500; }
+        .hero-meta-value { font-size: 14px; color: var(--text-secondary); font-weight: 500; }
+
+        .scroll-indicator { position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 8px; color: var(--text-tertiary); font-size: 11px; letter-spacing: 1px; animation: bounce 2s ease-in-out infinite; }
+        @keyframes bounce { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(8px); } }
+        .scroll-indicator svg { width: 20px; height: 20px; opacity: 0.4; }
+
+        /* Day separator */
+        .day-separator {
+            text-align: center; padding: 60px 24px 20px; position: relative;
+        }
+        .day-separator::before {
+            content: ''; position: absolute; left: 50%; top: 0;
+            width: 1px; height: 40px; background: linear-gradient(to bottom, transparent, var(--border-color));
+        }
+        .day-separator-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 8px 20px; border-radius: 100px;
+            background: rgba(139, 92, 246, 0.12); border: 1px solid rgba(139, 92, 246, 0.25);
+            font-size: 13px; font-weight: 600; color: var(--accent-purple); letter-spacing: 1px;
+        }
+
+        /* Section */
+        .section { padding: 100px 24px; max-width: 1200px; margin: 0 auto; }
+        .section-header { margin-bottom: 64px; }
+        .section-number { font-size: 12px; font-weight: 600; color: var(--accent-blue); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; }
+        .section-title { font-size: clamp(28px, 4vw, 42px); font-weight: 800; letter-spacing: -1.5px; line-height: 1.2; margin-bottom: 16px; }
+        .section-desc { font-size: 16px; color: var(--text-secondary); max-width: 600px; line-height: 1.7; }
+
+        /* Conclusion Cards */
+        .conclusion-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; margin-bottom: 80px; }
+        .conclusion-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 32px; transition: all 0.3s ease; position: relative; overflow: hidden; }
+        .conclusion-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+        .conclusion-card:nth-child(1)::before { background: var(--accent-blue); }
+        .conclusion-card:nth-child(2)::before { background: var(--accent-orange); }
+        .conclusion-card:nth-child(3)::before { background: var(--accent-green); }
+        .conclusion-card:nth-child(4)::before { background: var(--accent-purple); }
+        .conclusion-card:nth-child(5)::before { background: var(--accent-red); }
+        .conclusion-card:nth-child(6)::before { background: var(--accent-cyan); }
+        .conclusion-card:hover { border-color: var(--border-light); transform: translateY(-2px); box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
+        .conclusion-card-num { font-size: 36px; font-weight: 900; letter-spacing: -1px; margin-bottom: 12px; opacity: 0.15; position: absolute; top: 20px; right: 24px; }
+        .conclusion-card:nth-child(1) .conclusion-card-num { color: var(--accent-blue); }
+        .conclusion-card:nth-child(2) .conclusion-card-num { color: var(--accent-orange); }
+        .conclusion-card:nth-child(3) .conclusion-card-num { color: var(--accent-green); }
+        .conclusion-card:nth-child(4) .conclusion-card-num { color: var(--accent-purple); }
+        .conclusion-card:nth-child(5) .conclusion-card-num { color: var(--accent-red); }
+        .conclusion-card:nth-child(6) .conclusion-card-num { color: var(--accent-cyan); }
+        .conclusion-card-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.3px; }
+        .conclusion-card-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.7; }
+
+        /* Insight Cards */
+        .insight-block { margin-bottom: 80px; }
+        .insight-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 40px; margin-bottom: 24px; transition: all 0.3s ease; }
+        .insight-card:hover { border-color: var(--border-light); }
+        .insight-card-header { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 20px; }
+        .insight-icon { width: 44px; height: 44px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+        .insight-icon.blue { background: rgba(59,130,246,0.15); color: var(--accent-blue); }
+        .insight-icon.orange { background: rgba(245,158,11,0.15); color: var(--accent-orange); }
+        .insight-icon.green { background: rgba(16,185,129,0.15); color: var(--accent-green); }
+        .insight-icon.purple { background: rgba(139,92,246,0.15); color: var(--accent-purple); }
+        .insight-icon.red { background: rgba(239,68,68,0.15); color: var(--accent-red); }
+        .insight-icon.cyan { background: rgba(6,182,212,0.15); color: var(--accent-cyan); }
+        .insight-card-title { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 4px; }
+        .insight-card-subtitle { font-size: 13px; color: var(--text-tertiary); font-weight: 500; }
+        .insight-body { font-size: 15px; color: var(--text-secondary); line-height: 1.8; }
+        .insight-body strong { color: var(--text-primary); font-weight: 600; }
+        .insight-body ul { list-style: none; padding: 0; margin-top: 12px; }
+        .insight-body ul li { padding: 8px 0 8px 20px; position: relative; }
+        .insight-body ul li::before { content: ''; position: absolute; left: 0; top: 16px; width: 6px; height: 6px; border-radius: 50%; background: var(--accent-blue); }
+        .insight-body ul li:nth-child(2)::before { background: var(--accent-orange); }
+        .insight-body ul li:nth-child(3)::before { background: var(--accent-green); }
+        .insight-body ul li:nth-child(4)::before { background: var(--accent-purple); }
+        .insight-body ul li:nth-child(5)::before { background: var(--accent-red); }
+        .insight-body ul li:nth-child(6)::before { background: var(--accent-cyan); }
+
+        /* Methodology Table */
+        .method-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 80px; }
+        .method-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 32px; transition: all 0.3s ease; }
+        .method-card:hover { border-color: var(--border-light); transform: translateY(-2px); }
+        .method-card-tag { display: inline-block; padding: 4px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; }
+        .method-card-tag.blue { background: rgba(59,130,246,0.15); color: var(--accent-blue); }
+        .method-card-tag.orange { background: rgba(245,158,11,0.15); color: var(--accent-orange); }
+        .method-card-tag.green { background: rgba(16,185,129,0.15); color: var(--accent-green); }
+        .method-card-tag.purple { background: rgba(139,92,246,0.15); color: var(--accent-purple); }
+        .method-card-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.3px; }
+        .method-card-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 16px; }
+        .method-card-scenario { font-size: 12px; color: var(--text-tertiary); padding: 12px; background: rgba(255,255,255,0.03); border-radius: var(--radius-sm); border-left: 3px solid var(--accent-blue); }
+        .method-card-scenario strong { color: var(--text-secondary); }
+
+        /* Product Lines */
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-bottom: 80px; }
+        .product-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 32px; transition: all 0.3s ease; }
+        .product-card:hover { border-color: var(--border-light); }
+        .product-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border-color); }
+        .product-card-icon { width: 40px; height: 40px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .product-card-icon.red { background: rgba(239,68,68,0.15); }
+        .product-card-icon.blue { background: rgba(59,130,246,0.15); }
+        .product-card-icon.green { background: rgba(16,185,129,0.15); }
+        .product-card-icon.purple { background: rgba(139,92,246,0.15); }
+        .product-card-name { font-size: 18px; font-weight: 700; }
+        .product-metrics { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+        .product-metric { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: rgba(255,255,255,0.04); border: 1px solid var(--border-color); border-radius: 6px; font-size: 12px; color: var(--text-secondary); }
+        .product-metric-dot { width: 6px; height: 6px; border-radius: 50%; }
+        .product-metric-dot.red { background: var(--accent-red); }
+        .product-metric-dot.blue { background: var(--accent-blue); }
+        .product-metric-dot.green { background: var(--accent-green); }
+        .product-metric-dot.orange { background: var(--accent-orange); }
+        .product-metric-dot.purple { background: var(--accent-purple); }
+        .product-metric-dot.cyan { background: var(--accent-cyan); }
+        .product-focus { font-size: 14px; color: var(--text-secondary); line-height: 1.7; }
+        .product-focus strong { color: var(--text-primary); font-weight: 600; }
+
+        /* Red Lines */
+        .redline-list { display: grid; gap: 12px; margin-bottom: 80px; }
+        .redline-item { display: flex; align-items: flex-start; gap: 16px; padding: 20px 24px; background: var(--bg-card); border: 1px solid rgba(239,68,68,0.2); border-radius: var(--radius-md); transition: all 0.2s ease; }
+        .redline-item:hover { border-color: rgba(239,68,68,0.4); }
+        .redline-num { width: 28px; height: 28px; background: rgba(239,68,68,0.15); color: var(--accent-red); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+        .redline-text { font-size: 14px; color: var(--text-secondary); line-height: 1.7; }
+        .redline-text strong { color: var(--text-primary); }
+
+        /* Action Items */
+        .action-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 80px; }
+        .action-card { padding: 28px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); transition: all 0.3s ease; }
+        .action-card:hover { border-color: var(--border-light); }
+        .action-card-top { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+        .action-card-num { width: 32px; height: 32px; background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple)); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: white; }
+        .action-card-title { font-size: 16px; font-weight: 700; }
+        .action-card-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.7; }
+        .action-card-desc strong { color: var(--text-primary); }
+
+        /* Case Study Cards (Day 2) */
+        .case-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-bottom: 80px; }
+        .case-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 32px; transition: all 0.3s ease; position: relative; overflow: hidden; }
+        .case-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+        .case-card.fail::before { background: var(--accent-red); }
+        .case-card.success::before { background: var(--accent-green); }
+        .case-card:hover { border-color: var(--border-light); transform: translateY(-2px); box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
+        .case-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+        .case-icon { width: 40px; height: 40px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+        .case-icon.fail { background: rgba(239,68,68,0.15); color: var(--accent-red); }
+        .case-icon.success { background: rgba(16,185,129,0.15); color: var(--accent-green); }
+        .case-icon.warn { background: rgba(245,158,11,0.15); color: var(--accent-orange); }
+        .case-name { font-size: 18px; font-weight: 700; }
+        .case-lesson { font-size: 14px; color: var(--text-secondary); line-height: 1.7; }
+        .case-lesson strong { color: var(--text-primary); font-weight: 600; }
+        .case-tag { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-top: 12px; }
+        .case-tag.fail { background: rgba(239,68,68,0.12); color: var(--accent-red); }
+        .case-tag.success { background: rgba(16,185,129,0.12); color: var(--accent-green); }
+        .case-tag.warn { background: rgba(245,158,11,0.12); color: var(--accent-orange); }
+
+        /* Hook Model (Day 2) */
+        .hook-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 80px; }
+        .hook-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 28px; text-align: center; transition: all 0.3s ease; position: relative; overflow: hidden; }
+        .hook-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+        .hook-card:nth-child(1)::before { background: var(--accent-blue); }
+        .hook-card:nth-child(2)::before { background: var(--accent-orange); }
+        .hook-card:nth-child(3)::before { background: var(--accent-green); }
+        .hook-card:nth-child(4)::before { background: var(--accent-purple); }
+        .hook-card:hover { border-color: var(--border-light); transform: translateY(-2px); }
+        .hook-step { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; }
+        .hook-step.s1 { color: var(--accent-blue); }
+        .hook-step.s2 { color: var(--accent-orange); }
+        .hook-step.s3 { color: var(--accent-green); }
+        .hook-step.s4 { color: var(--accent-purple); }
+        .hook-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+        .hook-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.7; }
+        .hook-arrow { font-size: 24px; color: var(--text-tertiary); display: flex; align-items: center; justify-content: center; margin: 8px 0; }
+
+        /* Service Blueprint */
+        .blueprint-flow { display: flex; flex-direction: column; gap: 12px; margin-bottom: 80px; }
+        .blueprint-row { display: grid; grid-template-columns: 160px 1fr 1fr 1fr; gap: 12px; align-items: stretch; }
+        .blueprint-header { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-tertiary); padding: 12px; text-align: center; border-bottom: 1px solid var(--border-color); }
+        .blueprint-cell { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 16px; font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+        .blueprint-cell strong { color: var(--text-primary); font-weight: 600; }
+        .blueprint-cell.highlight { border-color: rgba(239,68,68,0.3); background: rgba(239,68,68,0.04); }
+        .blueprint-label { font-size: 12px; font-weight: 600; color: var(--accent-blue); margin-bottom: 4px; }
+
+        /* Strategy Section */
+        .strategy-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; margin-bottom: 80px; }
+        .strategy-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 32px; transition: all 0.3s ease; }
+        .strategy-card:hover { border-color: var(--border-light); }
+        .strategy-card-title { font-size: 18px; font-weight: 700; margin-bottom: 12px; }
+        .strategy-card-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.7; }
+        .strategy-card-desc strong { color: var(--text-primary); font-weight: 600; }
+
+        /* PM Role */
+        .pm-role { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 40px; margin-bottom: 80px; }
+        .pm-role-title { font-size: 20px; font-weight: 700; margin-bottom: 20px; }
+        .pm-role-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+        .pm-role-item { text-align: center; padding: 20px; background: rgba(255,255,255,0.02); border-radius: var(--radius-md); }
+        .pm-role-pct { font-size: 32px; font-weight: 900; letter-spacing: -1px; }
+        .pm-role-pct.blue { color: var(--accent-blue); }
+        .pm-role-pct.orange { color: var(--accent-orange); }
+        .pm-role-pct.green { color: var(--accent-green); }
+        .pm-role-label { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+        .pm-role-note { font-size: 13px; color: var(--text-tertiary); margin-top: 16px; padding: 12px; background: rgba(239,68,68,0.06); border-radius: var(--radius-sm); border-left: 3px solid var(--accent-red); }
+
+        /* Key Consensus */
+        .consensus-banner {
+            background: linear-gradient(135deg, rgba(59,130,246,0.08), rgba(139,92,246,0.08));
+            border: 1px solid rgba(59,130,246,0.2); border-radius: var(--radius-xl);
+            padding: 48px; text-align: center; position: relative; overflow: hidden;
+        }
+        .consensus-banner::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(ellipse at 50% 0%, rgba(59,130,246,0.1) 0%, transparent 60%); }
+        .consensus-banner-title { font-size: 14px; font-weight: 600; color: var(--accent-blue); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 16px; position: relative; }
+        .consensus-banner-text { font-size: clamp(20px, 3vw, 28px); font-weight: 800; letter-spacing: -0.5px; line-height: 1.4; position: relative; background: linear-gradient(135deg, #fff 0%, #a3a3a3 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+        /* Footer */
+        .footer { border-top: 1px solid var(--border-color); padding: 48px 24px; text-align: center; }
+        .footer-text { font-size: 13px; color: var(--text-tertiary); }
+        .footer-brand { font-size: 14px; font-weight: 600; color: var(--text-secondary); margin-top: 4px; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .conclusion-grid { grid-template-columns: 1fr; }
+            .method-grid { grid-template-columns: 1fr; }
+            .product-grid { grid-template-columns: 1fr; }
+            .action-grid { grid-template-columns: 1fr; }
+            .case-grid { grid-template-columns: 1fr; }
+            .hook-grid { grid-template-columns: 1fr; }
+            .strategy-grid { grid-template-columns: 1fr; }
+            .hero-meta { gap: 16px; }
+            .insight-card { padding: 24px; }
+            .consensus-banner { padding: 32px 24px; }
+            .blueprint-row { grid-template-columns: 1fr; }
+            .pm-role-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        /* Animations */
+        .fade-in { opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease, transform 0.6s ease; }
+        .fade-in.visible { opacity: 1; transform: translateY(0); }
+    </style>
 </head>
-<body class="min-h-screen">
-  <main class="mx-auto max-w-7xl px-5 py-8 lg:px-8">
-    <header class="mb-7 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-      <div>
-        <div class="mb-3 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/80 px-3 py-1 text-sm text-slate-600"><i data-lucide="camera" class="h-4 w-4 text-teal-600"></i>Anona Security Pano Camera</div>
-        <h1 class="text-3xl font-semibold tracking-tight text-slate-950 lg:text-5xl">可用性测试分析与体验优化看板</h1>
-        <p class="mt-3 max-w-3xl text-sm leading-6 text-slate-600 lg:text-base">基于 CSV 数据表单重新生成：5 位受试者、8 个任务、40 条任务记录。已计算任务完成率与耗时，SEQ/SUS 未提供，保留为缺失状态。</p>
-      </div>
-      <div class="glass rounded-2xl p-4 text-sm text-slate-600"><div class="flex items-center gap-2 font-medium text-slate-900"><i data-lucide="calendar-days" class="h-4 w-4 text-teal-600"></i>报告输出时间</div><div class="mt-1">2026-06-24</div></div>
-    </header>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-brand">
+            <div class="nav-brand-icon">M</div>
+            <span>猫鼬工厂 · 产品体验设计</span>
+        </div>
+        <div class="nav-links">
+            <a href="#conclusions" class="nav-link">核心结论</a>
+            <a href="#insights" class="nav-link">核心观点</a>
+            <a href="#methods" class="nav-link">方法论</a>
+            <a href="#products" class="nav-link">产品线</a>
+            <a href="#hook-model" class="nav-link">上钩模型</a>
+            <a href="#service-blueprint" class="nav-link">服务蓝图</a>
+            <a href="#casestudies" class="nav-link">案例</a>
+            <a href="#gpt-strategy" class="nav-link">GPT策略</a>
+            <a href="#redlines" class="nav-link">执行红线</a>
+            <a href="#actions" class="nav-link">落地计划</a>
+        </div>
+    </nav>
 
-    <section class="glass mb-7 rounded-3xl p-2">
-      <nav class="grid gap-2 md:grid-cols-3" aria-label="报告视图切换">
-        <button class="tab-btn tab-active flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold transition" data-tab="dashboard"><i data-lucide="bar-chart-3" class="h-4 w-4"></i>可视化看板</button>
-        <button class="tab-btn flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-white" data-tab="source"><i data-lucide="database" class="h-4 w-4"></i>原始数据源与行为记录</button>
-        <button class="tab-btn flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-white" data-tab="findings"><i data-lucide="lightbulb" class="h-4 w-4"></i>诊断与建议</button>
-      </nav>
+    <!-- ==================== HERO ==================== -->
+    <section class="hero">
+        <div class="hero-badge">
+            <span class="hero-badge-dot"></span>
+            完整纪要
+        </div>
+        <h1 class="hero-title">
+            <span class="hero-title-gradient">产品体验设计</span><br>
+            从用户洞察到系统落地
+        </h1>
+        <p class="hero-subtitle">
+            拒绝技术堆砌与伪创新，以「上钩模型 + 服务蓝图 + GPT策略」构建完整方法论体系，<br>
+            实现从功能交付到用户价值创造的跨越
+        </p>
+        <div class="hero-meta">
+            <div class="hero-meta-item">
+                <span class="hero-meta-label">日期</span>
+                <span class="hero-meta-value">完整纪要</span>
+            </div>
+            <div class="hero-meta-item">
+                <span class="hero-meta-label">产品线</span>
+                <span class="hero-meta-value">行车记录仪 · 安防摄像头 · 宠物设备</span>
+            </div>
+            <div class="hero-meta-item">
+                <span class="hero-meta-label">关键词</span>
+                <span class="hero-meta-value">体验基准 · 上钩模型 · 服务蓝图 · GPT策略</span>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <span>SCROLL</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M7 13l5 5 5-5M7 6l5 5 5-5"/>
+            </svg>
+        </div>
     </section>
 
-    <section id="dashboard" class="tab-panel">
-      <div class="mb-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <article class="glass rounded-3xl p-5"><div class="mb-4 flex items-center justify-between"><div class="rounded-2xl bg-teal-50 p-3 text-teal-700"><i data-lucide="users" class="h-5 w-5"></i></div><span class="text-xs font-medium text-slate-500">样本规模</span></div><div class="text-3xl font-semibold" id="sampleSize"></div><p class="mt-1 text-sm text-slate-500">位受试者 / 8 个任务</p></article>
-        <article class="glass rounded-3xl p-5"><div class="mb-4 flex items-center justify-between"><div class="rounded-2xl bg-sky-50 p-3 text-sky-700"><i data-lucide="check-circle-2" class="h-5 w-5"></i></div><span class="text-xs font-medium text-slate-500">整体任务完成率</span></div><div class="text-3xl font-semibold" id="completionKpi"></div><p class="mt-1 text-sm text-slate-500" id="completionSub"></p></article>
-        <article class="glass rounded-3xl p-5"><div class="mb-4 flex items-center justify-between"><div class="rounded-2xl bg-amber-50 p-3 text-amber-700"><i data-lucide="timer" class="h-5 w-5"></i></div><span class="text-xs font-medium text-slate-500">平均任务耗时</span></div><div class="text-3xl font-semibold" id="avgTimeKpi"></div><p class="mt-1 text-sm text-slate-500">仅统计有时长记录的任务行</p></article>
-        <article class="glass rounded-3xl p-5"><div class="mb-4 flex items-center justify-between"><div class="rounded-2xl bg-rose-50 p-3 text-rose-700"><i data-lucide="alert-triangle" class="h-5 w-5"></i></div><span class="text-xs font-medium text-slate-500">最高严重度</span></div><div class="text-3xl font-semibold">P0</div><p class="mt-1 text-sm text-slate-500">2 个关键阻断问题</p></article>
-      </div>
-
-      <div class="grid gap-5 lg:grid-cols-3">
-        <article class="glass rounded-3xl p-5"><div class="mb-3 flex items-center justify-between"><h2 class="font-semibold">任务完成率</h2><span class="rounded-full bg-sky-50 px-2.5 py-1 text-xs text-sky-700">CSV 已提供</span></div><div class="chart-box"><canvas id="completionChart"></canvas></div><p class="mt-3 text-xs text-slate-500">来源：40 条任务记录中的测试结果字段。</p></article>
-        <article class="glass rounded-3xl p-5 lg:col-span-2"><div class="mb-3 flex items-center justify-between"><h2 class="font-semibold">各任务平均耗时</h2><span class="rounded-full bg-teal-50 px-2.5 py-1 text-xs text-teal-700">按任务聚合</span></div><div class="chart-box"><canvas id="timeChart"></canvas></div><p class="mt-3 text-xs text-slate-500">来源：测试完成时长字段；失败且未记录时长的行不纳入均值。</p></article>
-      </div>
-
-      <div class="mt-5 grid gap-5 lg:grid-cols-5">
-        <article class="glass rounded-3xl p-5 lg:col-span-3"><div class="mb-3 flex items-center justify-between"><h2 class="font-semibold">问题频次 Top 8</h2><span class="rounded-full bg-teal-50 px-2.5 py-1 text-xs font-medium text-teal-700">行为编码</span></div><div class="h-[340px]"><canvas id="issueChart"></canvas></div><p class="mt-3 text-xs text-slate-500">基于错误位置、卡顿原因和优化方案自动归类后人工校准。</p></article>
-        <article class="glass rounded-3xl p-5 lg:col-span-2"><div class="mb-3 flex items-center justify-between"><h2 class="font-semibold">P 级严重度分布</h2><span class="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700">P0-P3</span></div><div class="h-[340px]"><canvas id="severityChart"></canvas></div><p class="mt-3 text-xs text-slate-500">P0 为关键阻断，P1 为高影响问题，P2 为中等影响问题，P3 为低影响优化。</p></article>
-      </div>
+    <!-- ==================== 核心结论 ==================== -->
+    <section class="section" id="conclusions">
+        <div class="section-header fade-in">
+            <div class="section-number">结论先行</div>
+            <h2 class="section-title">十大核心结论</h2>
+            <p class="section-desc">贯穿两天课程，是后续所有方法论与执行决策的根基</p>
+        </div>
+        <div class="conclusion-grid">
+            <!-- Day 1 conclusions -->
+            <div class="conclusion-card fade-in">
+                <div class="conclusion-card-num">01</div>
+                <h3 class="conclusion-card-title">反伪创新，锚定真实需求</h3>
+                <p class="conclusion-card-desc">
+                    用户要的是「任务完成」，不是技术参数。行车记录仪核心是随时查看，而非盲目堆4K；
+                    智能门锁核心是两步内无感开锁。每一个技术卡点都是体验提升的机会。
+                </p>
+            </div>
+            <div class="conclusion-card fade-in">
+                <div class="conclusion-card-num">02</div>
+                <h3 class="conclusion-card-title">体验分层，拒绝认知偏差</h3>
+                <p class="conclusion-card-desc">
+                    体验存在五个递进层次：感知与形态 → 功能与内容 → 结构与流程 → 交互逻辑 → 品牌与心智。
+                    多数产品停留在功能堆砌，未触及情感连接与品牌价值传递。
+                </p>
+            </div>
+            <div class="conclusion-card fade-in">
+                <div class="conclusion-card-num">03</div>
+                <h3 class="conclusion-card-title">三位一体系统观</h3>
+                <p class="conclusion-card-desc">
+                    优秀体验 = 硬件 × 软件 × 服务 的系统级交付。单一维度优化无法弥补整体短板，
+                    必须建立跨职能协同的标准化流程。
+                </p>
+            </div>
+            <div class="conclusion-card fade-in">
+                <div class="conclusion-card-num">04</div>
+                <h3 class="conclusion-card-title">ToB产品需用C端思维破局</h3>
+                <p class="conclusion-card-desc">
+                    行业趋势已从纯ToB转向「For C to B」。门锁订阅服务、AI自动生成Vlog等功能，
+                    本质都是用C端体验提升B端产品附加值与用户粘性。
+                </p>
+            </div>
+            <div class="conclusion-card fade-in">
+                <div class="conclusion-card-num">05</div>
+                <h3 class="conclusion-card-title">拒绝硬件军备竞赛</h3>
+                <p class="conclusion-card-desc">
+                    供应链同质化导致功能跟风，低价贴牌、华而不实的配置堆叠反而抬高成本、降低体验。
+                    优先保障核心体验的投入产出比。
+                </p>
+            </div>
+            <div class="conclusion-card fade-in">
+                <div class="conclusion-card-num">06</div>
+                <h3 class="conclusion-card-title">体验不可逆，坚持长期主义</h3>
+                <p class="conclusion-card-desc">
+                    用户对体验的阈值只会上升不会下降。一旦建立更高基准就无法回退，
+                    短期可借供应链快速落地，长期必须建立自己的产品文化与质量标准。
+                </p>
+            </div>
+            <!-- Day 2 conclusions -->
+            <div class="conclusion-card fade-in">
+                <div class="conclusion-card-num">07</div>
+                <h3 class="conclusion-card-title">上钩模型：行为-反馈-奖赏闭环</h3>
+                <p class="conclusion-card-desc">
+                    用户留存靠「触发→行动→奖赏→投入」的闭环机制。精准制造焦虑再提供解决方案，
+                    用游戏化即时满足对冲健康管理等反人性任务。硬件只是入口，AI服务才是护城河。
+                </p>
+            </div>
+            <div class="conclusion-card fade-in">
+                <div class="conclusion-card-num">08</div>
+                <h3 class="conclusion-card-title">服务蓝图是前后台协同的生命线</h3>
+                <p class="conclusion-card-desc">
+                    任一服务断点都会导致体验崩溃。前台触点再优秀，若后台系统无法支撑（如工单流转、
+                    异常告警、OTA推送），用户体验将全面崩塌。服务设计的核心在于高效危机兜底。
+                </p>
+            </div>
+            <div class="conclusion-card fade-in">
+                <div class="conclusion-card-num">09</div>
+                <h3 class="conclusion-card-title">先有卖点，再有功能</h3>
+                <p class="conclusion-card-desc">
+                    GPT策略的核心是「先提炼卖点，再匹配功能」。用一句大白话讲清用户利益，
+                    拒绝用传感器型号等晦涩参数考验大众理解力。场景化话术优于技术原理解释。
+                </p>
+            </div>
+            <div class="conclusion-card fade-in">
+                <div class="conclusion-card-num">10</div>
+                <h3 class="conclusion-card-title">PM必须把50%精力投入战场洞察</h3>
+                <p class="conclusion-card-desc">
+                    当前团队重执行轻规划，PM仅用10%精力做洞察、70%耗在研发供应链。
+                    正确分配应为：50%洞察 + 20-30% GPM运营 + 20%研发协同。
+                    没有足够市场盘子，再好的产品也撑不起商业闭环。
+                </p>
+            </div>
+        </div>
     </section>
 
-    <section id="source" class="tab-panel hidden">
-      <div class="glass rounded-3xl p-5"><div class="mb-5"><h2 class="text-2xl font-semibold">原始数据源与行为记录</h2><p class="mt-2 max-w-4xl text-sm text-slate-600">每一行对应一条“任务 × 受试者”记录。图表中的完成率、耗时、问题频次均可回溯到下表。</p></div><div class="soft-scroll overflow-x-auto"><table class="min-w-[1320px] w-full border-separate border-spacing-0 text-left text-sm"><thead><tr class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500"><th class="rounded-l-2xl px-4 py-3">任务</th><th class="px-4 py-3">受试者</th><th class="px-4 py-3">结果</th><th class="px-4 py-3">耗时</th><th class="px-4 py-3">SEQ/SUS</th><th class="px-4 py-3">卡顿和错误位置、原因</th><th class="px-4 py-3">可优化方案</th><th class="rounded-r-2xl px-4 py-3">编码</th></tr></thead><tbody id="sourceRows" class="align-top"></tbody></table></div></div>
+    <!-- ==================== Day 1 核心观点 ==================== -->
+    <section class="section" id="insights">
+        <div class="section-header fade-in">
+            <div class="section-number">核心观点</div>
+            <h2 class="section-title">四大设计洞察</h2>
+            <p class="section-desc">从用户真实场景出发，重新审视产品设计的底层逻辑</p>
+        </div>
+        <div class="insight-block">
+            <div class="insight-card fade-in">
+                <div class="insight-card-header">
+                    <div class="insight-icon blue">🎯</div>
+                    <div>
+                        <div class="insight-card-title">反伪创新，锚定用户真实需求</div>
+                        <div class="insight-card-subtitle">用户要的是任务完成，不是技术参数</div>
+                    </div>
+                </div>
+                <div class="insight-body">
+                    <ul>
+                        <li><strong>行车记录仪</strong> — 核心是「随时查看」，而非盲目堆4K分辨率</li>
+                        <li><strong>智能门锁</strong> — 核心是「两步内无感开锁」，而非附加冗余摄像头</li>
+                        <li><strong>摄像头</strong> — 核心是「安全+隐私+远程看护」，而非单纯追求高清</li>
+                        <li><strong>真正的创新</strong> — 解决用户「不舒服」的卡点：夜间逆光定责、宠物异常提醒、安装便捷性</li>
+                        <li><strong>消除营销-实物落差</strong> — 线上展示与实物体验的偏差会直接导致高退货率</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="insight-card fade-in">
+                <div class="insight-card-header">
+                    <div class="insight-icon orange">📊</div>
+                    <div>
+                        <div class="insight-card-title">体验五层分级模型</div>
+                        <div class="insight-card-subtitle">从可用到好用，从好用到有情感共鸣</div>
+                    </div>
+                </div>
+                <div class="insight-body">
+                    <ul>
+                        <li><strong>第一层 · 感知与形态</strong> — 工业设计、材质触感、视觉识别</li>
+                        <li><strong>第二层 · 功能与内容</strong> — 核心功能完整性、信息架构</li>
+                        <li><strong>第三层 · 结构与流程</strong> — 操作路径、效率、容错率</li>
+                        <li><strong>第四层 · 交互逻辑</strong> — 反馈机制、异常处理、学习成本</li>
+                        <li><strong>第五层 · 品牌与心智</strong> — 情感连接、信任感、用户自发传播</li>
+                    </ul>
+                    <p style="margin-top:12px;font-size:13px;color:var(--text-tertiary);">
+                        当前多数产品仍停留在第一、二层，未触及第四、五层的情感价值传递。
+                    </p>
+                </div>
+            </div>
+            <div class="insight-card fade-in">
+                <div class="insight-card-header">
+                    <div class="insight-icon purple">🔄</div>
+                    <div>
+                        <div class="insight-card-title">三位一体系统观</div>
+                        <div class="insight-card-subtitle">硬件 × 软件 × 服务 = 完整用户体验</div>
+                    </div>
+                </div>
+                <div class="insight-body">
+                    <p>优秀的产品体验不是单一维度的优化，而是<strong>硬件、软件、服务</strong>三者的系统级协同：</p>
+                    <ul>
+                        <li><strong>硬件</strong> — 工业设计、传感器选型、续航、安装便捷性</li>
+                        <li><strong>软件</strong> — App流畅度、配网稳定性、AI算法准确性</li>
+                        <li><strong>服务</strong> — 售后响应、云存储订阅、用户教育、社区运营</li>
+                    </ul>
+                    <p style="margin-top:12px;font-size:13px;color:var(--text-tertiary);">
+                        任何一个维度的短板都会拉低整体体验评分，木桶理论在此完全适用。
+                    </p>
+                </div>
+            </div>
+            <div class="insight-card fade-in">
+                <div class="insight-card-header">
+                    <div class="insight-icon green">💡</div>
+                    <div>
+                        <div class="insight-card-title">ToB产品C端思维破局</div>
+                        <div class="insight-card-subtitle">从「For B」到「For C to B」的范式转变</div>
+                    </div>
+                </div>
+                <div class="insight-body">
+                    <ul>
+                        <li><strong>趋势转变</strong> — 行业已从纯ToB转向「For C to B」，终端用户的体验直接决定B端产品的市场竞争力</li>
+                        <li><strong>竞争壁垒</strong> — 靠用户粘性（而非单纯价格）建立护城河：门锁订阅服务、行车记录仪AI自动生成Vlog</li>
+                        <li><strong>体验下沉</strong> — 即使是面向企业的安防方案，安装工人和最终使用者的体验也决定了交付质量</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </section>
 
-    <section id="findings" class="tab-panel hidden">
-      <div class="grid gap-5 lg:grid-cols-3"><article class="glass rounded-3xl p-6 lg:col-span-2"><h2 class="text-2xl font-semibold">体验现状整体诊断</h2><p class="mt-4 leading-8 text-slate-700">本轮 CSV 数据显示，Anona App 的基础流程存在“完成但不顺”的任务，也存在核心任务级阻断。整体任务完成率为 72.5%，但“关闭警报声”任务 0% 完成，“全天候不停顿记录”任务仅 20% 完成，说明安全控制与录制设置是当前最优先的 P0 问题。绑定、注册、直播云台、回放删除等任务虽然多数完成，但普遍出现文案误解、入口误判和反馈不足，容易削弱安防产品最关键的信任感与控制感。</p></article><aside class="glass rounded-3xl p-6"><h3 class="font-semibold">量化数据状态</h3><ul class="mt-4 space-y-3 text-sm text-slate-600"><li class="flex gap-2"><i data-lucide="check-circle-2" class="mt-0.5 h-4 w-4 text-teal-600"></i>已提供任务结果和耗时。</li><li class="flex gap-2"><i data-lucide="check-circle-2" class="mt-0.5 h-4 w-4 text-teal-600"></i>可计算完成率和平均耗时。</li><li class="flex gap-2"><i data-lucide="minus-circle" class="mt-0.5 h-4 w-4 text-slate-400"></i>未提供 SEQ 与 SUS。</li></ul></aside></div>
-      <div class="glass mt-5 rounded-3xl p-6"><h2 class="text-2xl font-semibold">严重等级定义</h2><div id="severityGuide" class="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4"></div></div>
-      <div id="findingCards" class="mt-5 grid gap-5"></div>
-      <div class="glass mt-5 rounded-3xl p-6"><h2 class="text-2xl font-semibold">后续优化优先级矩阵</h2><div class="soft-scroll mt-5 overflow-x-auto"><table class="min-w-[980px] w-full border-separate border-spacing-0 text-left text-sm"><thead><tr class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500"><th class="rounded-l-2xl px-4 py-3">问题编号</th><th class="px-4 py-3">优化建议概述</th><th class="px-4 py-3">严重等级</th><th class="px-4 py-3">影响度</th><th class="px-4 py-3">成本</th><th class="rounded-r-2xl px-4 py-3">推荐排期</th></tr></thead><tbody id="roadmapRows"></tbody></table></div></div>
+    <!-- ==================== Day 1 方法论 ==================== -->
+    <section class="section" id="methods">
+        <div class="section-header fade-in">
+            <div class="section-number">方法论</div>
+            <h2 class="section-title">四大核心框架</h2>
+            <p class="section-desc">从诊断到落地，建立可复用的方法论体系</p>
+        </div>
+        <div class="method-grid">
+            <div class="method-card fade-in">
+                <div class="method-card-tag blue">诊断工具</div>
+                <h3 class="method-card-title">三角形诊断模型</h3>
+                <p class="method-card-desc">
+                    从三个维度定位产品问题：<br>
+                    <strong>① 需求维度</strong> — 落地到具体人群、场景、用户任务，拒绝抽象需求<br>
+                    <strong>② 技术维度</strong> — 用木桶理论找短板，每个技术卡点都是体验提升机会<br>
+                    <strong>③ 协作维度</strong> — 明确每条产品线的Owner（产品经理牵头），统一标准
+                </p>
+                <div class="method-card-scenario"><strong>应用场景：</strong>产品问题复盘、前期调研分类、跨团队对齐</div>
+            </div>
+            <div class="method-card fade-in">
+                <div class="method-card-tag orange">基准体系</div>
+                <h3 class="method-card-title">五层体验基准体系</h3>
+                <p class="method-card-desc">
+                    将体验标准具象为可量化指标：<br>
+                    <strong>基础层</strong> — 安装步骤数、续航时长、弱网配网速度、故障率<br>
+                    <strong>功能层</strong> — 操作步骤数、查找关键信息耗时、误触率<br>
+                    <strong>价值层</strong> — NPS（净推荐值）、留存率、付费转化率
+                </p>
+                <div class="method-card-scenario"><strong>应用场景：</strong>建立各产品线体验考核标准，避免主观决策</div>
+            </div>
+            <div class="method-card fade-in">
+                <div class="method-card-tag green">创新流程</div>
+                <h3 class="method-card-title">情绪版工作坊</h3>
+                <p class="method-card-desc">
+                    拒绝拍脑袋创新，采用跨职能协作流程：<br>
+                    <strong>① 情绪版共创</strong> — 产品、设计、工程、市场共同参与<br>
+                    <strong>② 需求抓取</strong> — 从用户情感/任务需求出发收敛概念<br>
+                    <strong>③ 概念验证</strong> — 先验证再投入，而非先定卖点再找路径
+                </p>
+                <div class="method-card-scenario"><strong>应用场景：</strong>新品定义、老品迭代、功能优先级决策</div>
+            </div>
+            <div class="method-card fade-in">
+                <div class="method-card-tag purple">决策原则</div>
+                <h3 class="method-card-title">优先级决策框架</h3>
+                <p class="method-card-desc">
+                    <strong>功能取舍</strong> — 「能用一个概念绝不用两个」，非核心功能不堆砌<br>
+                    <strong>场景适配</strong> — 不同产品线按用户需求定权重（安防优先数据安全，宠物优先异常提醒）<br>
+                    <strong>成本策略</strong> — 拒绝硬件军备竞赛，优先保障核心体验ROI
+                </p>
+                <div class="method-card-scenario"><strong>应用场景：</strong>资源分配、方案评审、roadmap规划</div>
+            </div>
+        </div>
     </section>
-  </main>
 
-  <script>
-    const reportData = {"product": {"name": "Anona Security Pano Camera", "rawData": "Anona摄像机品类体验_app问题优化计划 - 数据表单.csv", "outputDate": "2026-06-24"}, "metrics": {"sampleSize": 5, "taskCount": 8, "recordCount": 40, "successTotal": 29, "failTotal": 11, "completion": 72.5, "avgSeconds": 92.3, "avgTime": "1:32"}, "taskMetrics": [{"id": "T1", "task": "注册一个anona账号", "n": 5, "success": 5, "fail": 0, "completion": 100.0, "avgSeconds": 103.6, "avgTime": "1:44", "timeSample": 5}, {"id": "T2", "task": "正常绑定设备", "n": 5, "success": 5, "fail": 0, "completion": 100.0, "avgSeconds": 125.2, "avgTime": "2:05", "timeSample": 5}, {"id": "T3", "task": "异常绑定设备", "n": 5, "success": 5, "fail": 0, "completion": 100.0, "avgSeconds": 139.0, "avgTime": "2:19", "timeSample": 5}, {"id": "T4", "task": "将画面仅对着宠物（1010没有区域侦测，则换成测试云台使用）", "n": 5, "success": 5, "fail": 0, "completion": 100.0, "avgSeconds": 61.4, "avgTime": "1:01", "timeSample": 5}, {"id": "T5", "task": "仅开启人形且开启警报。并关闭警报声", "n": 5, "success": 0, "fail": 5, "completion": 0.0, "avgSeconds": 116.0, "avgTime": "1:56", "timeSample": 2}, {"id": "T6", "task": "想要让摄像机全天候不停顿的记录家庭", "n": 5, "success": 1, "fail": 4, "completion": 20.0, "avgSeconds": 25.0, "avgTime": "0:25", "timeSample": 1}, {"id": "T7", "task": "相关所有视频（只要有人的视频）都删除", "n": 5, "success": 5, "fail": 0, "completion": 100.0, "avgSeconds": 33.0, "avgTime": "0:33", "timeSample": 5}, {"id": "T8", "task": "想让邀请测试发起者和你一起使用你账户里的全部设备", "n": 5, "success": 3, "fail": 2, "completion": 60.0, "avgSeconds": 97.7, "avgTime": "1:38", "timeSample": 3}], "records": [{"tester": "廖顶康", "task": "注册一个anona账号", "result": "成功", "timeRaw": "3'02", "seconds": 182, "evidence": "错误位置1：用户看到输出框时，自然的去输入自己的账号。然后他没注意这是登陆框，填写到一半看到下方有“注册”，随机点击进行账号注册\n错误位置2：用户未看到「发送验证码」按钮，导致用户以为输入数字是自己设定的数字，直接开始填写数字。\n错误位置3：设定的密码要求高，用户反复调整密码。且有不符合anona密码要求的系统强自动填写。", "solution": "1.用户默认进入不应该是提供账号密码输入框，应该将注册设定为和登陆平级\n2.密码要求（如：长度、特殊字符）应在输入框下方以灰色小字常驻显示，而不只是在报错时提示。", "codes": ["注册/账号", "文案/翻译/反馈"]}, {"tester": "王佳宇", "task": "注册一个anona账号", "result": "成功", "timeRaw": "1'30", "seconds": 90, "evidence": "错误位置1：设定的密码要求高，用户反复调整密码。发现没法继续后用户才去仔细看密码要求", "solution": "未提供", "codes": ["注册/账号"]}, {"tester": "张思彦", "task": "注册一个anona账号", "result": "成功", "timeRaw": "1'11", "seconds": 71, "evidence": "错误位置1：设定的密码要求高，用户反复调整密码。发现没法继续后用户才去仔细看密码要求", "solution": "未提供", "codes": ["注册/账号"]}, {"tester": "唐志明", "task": "注册一个anona账号", "result": "成功", "timeRaw": "1'50", "seconds": 110, "evidence": "错误位置1：用户看到输出框时，自然的去输入自己的账号。然后他没注意这是登陆框，填写到一半看到下方有“注册”，随机点击进行账号注册", "solution": "未提供", "codes": ["注册/账号"]}, {"tester": "外部测试者", "task": "注册一个anona账号", "result": "成功", "timeRaw": "1'05", "seconds": 65, "evidence": "错误位置1：用户看到输出框时，自然的去输入自己的账号。然后他没注意这是登陆框，填写到一半看到下方有“注册”，随机点击进行账号注册", "solution": "未提供", "codes": ["注册/账号"]}, {"tester": "廖顶康", "task": "正常绑定设备", "result": "成功", "timeRaw": "1'50", "seconds": 110, "evidence": "卡顿位置1:选择使用场景时，用户被上方进度条误导，以为是滑动翻页，实际需要用户去点击选择才可往下进行", "solution": "1.将“SD卡异常”技术报错，转化为业务语言，如：“检测到SD卡，是否立即格式化并使用？”\n2.若SD卡需配置，直接在直播页进行格式化。或者点击进入对应设置后，直接弹窗二次确认开始格式化。减少用户在列表间的跳转查找。防止用户使用时，交互链路丢失\n3.将“存储管理”更名为“视频与存储”或者类似名称", "codes": ["绑定/SD卡", "直播/云台/全景", "回放/视频管理", "文案/翻译/反馈"]}, {"tester": "王佳宇", "task": "正常绑定设备", "result": "成功", "timeRaw": "3'20", "seconds": 200, "evidence": "卡顿位置1:用户看到上方进度条同样去进行了滑动的操作，直接去点击了进度条。以为可以滑动/点击\n卡顿位置2：网络不好导致选择场景错误，出现的toast很快用户也没能仔细看清楚，以为是自己操作上的问题。\n错误位置1:绑定后进入直播页面出现SD卡格式化弹窗，点弹窗进入列表后，用户发现还需要去选中“格式化sd卡”，结果用户手快点错了点到推出SD卡。SD卡推出后，用户只能手动把SD卡拔出然后插入\n错误位置2：无SD卡横幅出现后，用户自然的去点击，结果发现没有反应。用户去到存储管理界面去寻找SD卡设置，「存储管理」这个名称让用户觉得与存储卡设置关联度很高", "solution": "未提供", "codes": ["绑定/SD卡", "直播/云台/全景", "文案/翻译/反馈"]}, {"tester": "张思彦", "task": "正常绑定设备", "result": "成功", "timeRaw": "1'35", "seconds": 95, "evidence": "卡顿位置1:绑定后进入直播页面出现SD卡格式化弹窗，点弹窗进入列表后，用户发现还需要去选中“格式化sd卡”，有短暂停顿", "solution": "未提供", "codes": ["绑定/SD卡", "直播/云台/全景"]}, {"tester": "唐志明", "task": "正常绑定设备", "result": "成功", "timeRaw": "1'25", "seconds": 85, "evidence": "卡顿位置1:用户看到SD卡格式化弹窗，点了取消，并且用户任务那是sd卡异常而不是初始化/格式化的意思", "solution": "未提供", "codes": ["绑定/SD卡"]}, {"tester": "外部测试者", "task": "正常绑定设备", "result": "成功", "timeRaw": "2'16", "seconds": 136, "evidence": "卡顿位置1:用户看到SD卡格式化弹窗不知道怎么做，会发生什么结果", "solution": "未提供", "codes": ["绑定/SD卡"]}, {"tester": "廖顶康", "task": "异常绑定设备", "result": "成功", "timeRaw": "3'05", "seconds": 185, "evidence": "卡顿位置1:轻度卡顿，可以理解为在阅读错误弹窗的文案。根据错误弹窗指引下交互操作流畅", "solution": "1.在每个设备卡片上增加「设置」按钮，用户便可清晰了解这个设置是仅针对这个设备的", "codes": ["文案/翻译/反馈"]}, {"tester": "王佳宇", "task": "异常绑定设备", "result": "成功", "timeRaw": "3'40", "seconds": 220, "evidence": "错误位置1:要求用户去解绑设备，用户下意识在app中-我的页面寻找解绑，而不是进到此设备中", "solution": "未提供", "codes": ["其他"]}, {"tester": "张思彦", "task": "异常绑定设备", "result": "成功", "timeRaw": "1'50", "seconds": 110, "evidence": "未记录", "solution": "未提供", "codes": ["其他"]}, {"tester": "唐志明", "task": "异常绑定设备", "result": "成功", "timeRaw": "1'40", "seconds": 100, "evidence": "未记录", "solution": "未提供", "codes": ["其他"]}, {"tester": "外部测试者", "task": "异常绑定设备", "result": "成功", "timeRaw": "1'20", "seconds": 80, "evidence": "错误1:要求用户去解绑设备，用户迟钝质疑删除设备是不是等于解绑，并且不知道删除设备会发生什么", "solution": "未提供", "codes": ["回放/视频管理"]}, {"tester": "廖顶康", "task": "将画面仅对着宠物（1010没有区域侦测，则换成测试云台使用）", "result": "成功", "timeRaw": "0’58", "seconds": 58, "evidence": "卡顿位置1:用户进入直播页，直接看到了云台，立马进行了操作。后来发现操作不了，意识到直播正在加载所以没法使用", "solution": "1.对360全景功能的图标进行优化，减少用户将其与云台进行关联", "codes": ["直播/云台/全景"]}, {"tester": "王佳宇", "task": "将画面仅对着宠物（1010没有区域侦测，则换成测试云台使用）", "result": "成功", "timeRaw": "0'54", "seconds": 54, "evidence": "卡顿位置1:用户进入直播页，第一反应此任务需要云台操作，用户知道需要去旋转来对着宠物。用户先去点击了 360的图标，然后再去点击了云台。", "solution": "未提供", "codes": ["直播/云台/全景", "报警/侦测"]}, {"tester": "张思彦", "task": "将画面仅对着宠物（1010没有区域侦测，则换成测试云台使用）", "result": "成功", "timeRaw": "1'30", "seconds": 90, "evidence": "卡顿位置1:用户进入直播页后，先点击了360全景图标再开始", "solution": "未提供", "codes": ["直播/云台/全景"]}, {"tester": "唐志明", "task": "将画面仅对着宠物（1010没有区域侦测，则换成测试云台使用）", "result": "成功", "timeRaw": "0'55", "seconds": 55, "evidence": "未记录", "solution": "未提供", "codes": ["其他"]}, {"tester": "外部测试者", "task": "将画面仅对着宠物（1010没有区域侦测，则换成测试云台使用）", "result": "成功", "timeRaw": "0'50", "seconds": 50, "evidence": "卡顿位置1:用户进入直播页后，先点击了360全景图标，然后再去点击云台控制", "solution": "未提供", "codes": ["直播/云台/全景"]}, {"tester": "廖顶康", "task": "仅开启人形且开启警报。并关闭警报声", "result": "失败", "timeRaw": "-", "seconds": null, "evidence": "卡顿位置1:打开设置页，没有看到上方【智能侦测】设置项，潜意识向下滑动。\n卡顿位置2:尝试点击关闭人形侦测后出现弹窗，停顿不知道是否关闭，可能文案过多用户不愿意看内容直接选择关闭弹窗。\n卡顿位置3:设置完灵敏度后，用户进行了短暂的停顿，或许是在等待一个反馈的结果\n错误位置1：用户认为警报相关内容不会在侦测设置下面，退出去别的设置项进行寻找\n错误位置2：用户看到了自定义警报，并进入了录制界面，但是没有录制，也没有选中自定义语音\n错误位置3:警报声响了，用户自然的进入设置项，直接关闭了人形的侦测类型按钮，而不是去关闭警报声", "solution": "1.将【智能探测】移至设置页面顶部，醒目的位置，确保用户打开页面即可看到，无需滑动查找\n2.在最显眼位置增加报警总开关\n3.在自定义语音界面，增加明显的“开始录音”大按钮，录音结束后自动跳转回列表并默认选中，增加成功录制的视觉动效。并且选中状态明确\n4.", "codes": ["报警/侦测", "录制模式", "文案/翻译/反馈"]}, {"tester": "王佳宇", "task": "仅开启人形且开启警报。并关闭警报声", "result": "失败", "timeRaw": "-", "seconds": null, "evidence": "卡顿位置1:打开设置页，没有看到上方较为醒目的【智能侦测】设置项，潜意识向下滑动。与上个测试者一样的行为\n错误位置1:用户看到了自定义警报，并进入了录制界面，直接开始讲话录音，随后才去点击按钮开始录制\n错误位置2:用户误进了 scheduled detection、sound detection", "solution": "未提供", "codes": ["报警/侦测", "录制模式"]}, {"tester": "张思彦", "task": "仅开启人形且开启警报。并关闭警报声", "result": "失败", "timeRaw": "-", "seconds": null, "evidence": "错误位置1:用户看到了自定义警报，并进入了录制界面，直接开始讲话录音，随后才去点击按钮开始录制\n错误位置2:用户在直播页点击了静音按钮，误以为和警报有相关性", "solution": "未提供", "codes": ["直播/云台/全景", "报警/侦测", "录制模式"]}, {"tester": "唐志明", "task": "仅开启人形且开启警报。并关闭警报声", "result": "失败", "timeRaw": "2'05", "seconds": 125, "evidence": "错误位置1:用户看到了自定义警报，并进入了录制界面，直接开始讲话录音，随后才去点击按钮开始录制\n错误位置2:用户录制完自定义声音，以为直接选中了", "solution": "未提供", "codes": ["报警/侦测", "录制模式"]}, {"tester": "外部用户", "task": "仅开启人形且开启警报。并关闭警报声", "result": "失败", "timeRaw": "1'47", "seconds": 107, "evidence": "错误位置1：设备发出警报声，用户尝试在摄像机设备上寻找按钮，想通过物理的方式关闭", "solution": "未提供", "codes": ["报警/侦测"]}, {"tester": "廖顶康", "task": "想要让摄像机全天候不停顿的记录家庭", "result": "失败", "timeRaw": "-", "seconds": null, "evidence": "错误位置1：翻找一圈后没有找到此设置的位置", "solution": "1.前置录制模式设置的位置，移动至视频与音频或者侦测，强相关的模块中\n2.Time setting与 时区设置翻译不符容易造成误区", "codes": ["报警/侦测", "录制模式", "回放/视频管理", "文案/翻译/反馈"]}, {"tester": "王佳宇", "task": "想要让摄像机全天候不停顿的记录家庭", "result": "失败", "timeRaw": "-", "seconds": null, "evidence": "错误位置1：第一眼看到时区设置翻译为 Time settings，翻译不准确导致用户以为这个和录制的时间有相关性，用户点进去查看。最终用户没有找到此设置", "solution": "未提供", "codes": ["录制模式", "文案/翻译/反馈"]}, {"tester": "张思彦", "task": "想要让摄像机全天候不停顿的记录家庭", "result": "成功", "timeRaw": "0'25", "seconds": 25, "evidence": "错误位置1：用户在视频与音频中寻找\n错误位置2：用户在智能侦测中寻找", "solution": "未提供", "codes": ["报警/侦测", "回放/视频管理"]}, {"tester": "唐志明", "task": "想要让摄像机全天候不停顿的记录家庭", "result": "失败", "timeRaw": "-", "seconds": null, "evidence": "错误位置1：第一眼看到时区设置翻译为 Time settings，翻译不准确导致用户以为这个和录制的时间有相关性\n错误位置2：用户进入定时侦测去进行设置，混淆概念了", "solution": "未提供", "codes": ["报警/侦测", "录制模式", "文案/翻译/反馈"]}, {"tester": "外部用户", "task": "想要让摄像机全天候不停顿的记录家庭", "result": "失败", "timeRaw": "-", "seconds": null, "evidence": "错误位置1：用户在视频与音频中寻找\n错误位置2：用户在智能侦测中寻找\n错误位置3: 用户在时区设置Time settings寻找，最终没找到", "solution": "未提供", "codes": ["报警/侦测", "回放/视频管理"]}, {"tester": "廖顶康", "task": "相关所有视频（只要有人的视频）都删除", "result": "成功", "timeRaw": "0’28", "seconds": 28, "evidence": "错误位置1:与预期设想不符，没有进入过存储管理并使用批量删除、事件筛选功能。用户首先误以为插件页「录像」图标是存储照片视频的地方。然后用户进入回放轴，再进入事件页，通过右滑触发单次删除，然后单独删除了人形录像", "solution": "1.在“回放”页面增加“编辑/删除”入口。当用户进入回放界面时，应直接提供“批量删除”或“删除所选”的操作项，用户必须避免跳转到“删除视频管理”才能删除视频的困扰。\n2.整合存储管理和回放的功能，重复功能合并\n3.存储管理的名称需要优化，告知用户这里存储了视频", "codes": ["绑定/SD卡", "报警/侦测", "回放/视频管理", "家庭/分享"]}, {"tester": "王佳宇", "task": "相关所有视频（只要有人的视频）都删除", "result": "成功", "timeRaw": "0'19", "seconds": 19, "evidence": "未记录", "solution": "未提供", "codes": ["其他"]}, {"tester": "张思彦", "task": "相关所有视频（只要有人的视频）都删除", "result": "成功", "timeRaw": "0'25", "seconds": 25, "evidence": "未记录", "solution": "未提供", "codes": ["其他"]}, {"tester": "唐志明", "task": "相关所有视频（只要有人的视频）都删除", "result": "成功", "timeRaw": "0'35", "seconds": 35, "evidence": "卡顿位置1:在存储管理中，打开事件和全时视频切换看了下", "solution": "未提供", "codes": ["绑定/SD卡", "录制模式", "回放/视频管理"]}, {"tester": "外部用户", "task": "相关所有视频（只要有人的视频）都删除", "result": "成功", "timeRaw": "0'58", "seconds": 58, "evidence": "错误位置1:与预期设想不符，没有进入过存储管理并使用批量删除、事件筛选功能。\n错误位置2:用户进入回放后，在回放进行人形筛选，然后在回放中寻找编辑的功能。最后在事件页里面单独删除", "solution": "未提供", "codes": ["绑定/SD卡", "报警/侦测", "回放/视频管理", "家庭/分享"]}, {"tester": "廖顶康", "task": "想让邀请测试发起者和你一起使用你账户里的全部设备", "result": "失败", "timeRaw": "-", "seconds": null, "evidence": "错误位置1:最先在设备的设置里进行分享\n错误位置2:找到了邀请入口，但是因为不知道分享在具体哪个app上\n错误位置3:邀请入口的QR和图片分享方式未点击使用", "solution": "1.单个分享和批量分享逻辑差别大，批量分享实际上是家庭管理，将别人拉入家庭。单个分享界面是否可以增加批量分享功能\n2.强化家庭的概念，增加家庭入口的醒目度\n3.分享弹窗-QR code，可以更改描述以免用户不会去选择此分享方式，例如”扫码邀请“。并且QR和图像分享有点重复，保留一个即可\n4.避免家庭管理和共享有多个入口，且最终进入的页面是一样的", "codes": ["家庭/分享"]}, {"tester": "王佳宇", "task": "想让邀请测试发起者和你一起使用你账户里的全部设备", "result": "失败", "timeRaw": "-", "seconds": null, "evidence": "错误位置1:在明确告知用户需要让测试者可以使用他账户下的所有设备，用户默认在此设备的设置里去看到sharing去进行了分享\n错误位置2:用户全程没有点开\n卡顿位置1：用户点开分享的弹窗，但是进行了停顿，且和另一测试者一样只使用「分享链接」这个方法，没有点开QR code分享和图像功能", "solution": "未提供", "codes": ["家庭/分享"]}, {"tester": "张思彦", "task": "想让邀请测试发起者和你一起使用你账户里的全部设备", "result": "成功", "timeRaw": "2'11", "seconds": 131, "evidence": "卡顿位置1:用户从插件页、我的-分享重复多次进入分享界面，没有继续进行操作，最终在首页顶部家庭入口进入，完成任务", "solution": "未提供", "codes": ["家庭/分享"]}, {"tester": "唐志明", "task": "想让邀请测试发起者和你一起使用你账户里的全部设备", "result": "成功", "timeRaw": "1'55", "seconds": 115, "evidence": "错误位置1:用户新建了一个家庭，将自己账户下的设备移动到此家庭，再进行邀请", "solution": "未提供", "codes": ["家庭/分享"]}, {"tester": "外部用户", "task": "想让邀请测试发起者和你一起使用你账户里的全部设备", "result": "成功", "timeRaw": "0'47", "seconds": 47, "evidence": "错误位置1:用户首先在设备插件里尝试分享，后面退出至首页-我的进行操作", "solution": "未提供", "codes": ["家庭/分享"]}], "issueFrequencies": [{"label": "报警/侦测", "count": 12}, {"label": "文案/翻译/反馈", "count": 8}, {"label": "直播/云台/全景", "count": 8}, {"label": "回放/视频管理", "count": 8}, {"label": "绑定/SD卡", "count": 8}, {"label": "录制模式", "count": 8}, {"label": "家庭/分享", "count": 7}, {"label": "注册/账号", "count": 5}], "severityDistribution": [{"level": "P0", "count": 2}, {"level": "P1", "count": 4}, {"level": "P2", "count": 2}], "findings": [{"id": "#1", "title": "报警关闭任务完全失败，缺少清晰总开关与主从层级", "severity": "P0", "dimension": "交互控制 / 安全感知", "description": "“仅开启人形且开启警报，并关闭警报声”任务 5 位受试者全部失败。用户不知道报警声与人形侦测、自定义报警、直播页静音、设备物理按钮之间的关系。", "evidence": ["任务 T5 完成率 0%（0/5）。", "多位用户进入自定义警报录音页后不会录制或以为已选中。", "外部用户尝试在摄像机设备上寻找物理按钮关闭警报。"], "shortTerm": "在报警设置页顶部增加“报警总开关”，并用一句话说明关闭后的影响。自定义报警录音页增加“开始录音”主按钮、录制成功提示和默认选中态。", "longTerm": "重构报警体系为“报警总开关 > 侦测类型 > 报警方式 > 声音来源”的层级结构，统一直播页、设置页和设备状态反馈。"}, {"id": "#2", "title": "全天候录制入口隐藏，录制模式与用户心智严重错位", "severity": "P0", "dimension": "信息架构 / 录制设置", "description": "“让摄像机全天候不停顿记录家庭”任务仅 1/5 成功。用户会在视频与音频、智能侦测、时区设置中寻找，却无法定位全时录制。", "evidence": ["任务 T6 完成率 20%（1/5）。", "用户被 Time settings 翻译误导，以为与录制时间相关。", "用户认为录制模式应与视频、侦测、画面强相关。"], "shortTerm": "在“视频与音频”“智能侦测”“存储/录像”中增加“录制模式”交叉入口，并为“全时录制/事件录制”添加结果说明。", "longTerm": "新增“视频与录制”一级模块，将全时录制、事件录制、循环录制、存储位置和时间策略统一管理。"}, {"id": "#3", "title": "家庭/分享路径成功率低，单设备分享与家庭共享混淆", "severity": "P1", "dimension": "信息架构 / 共享协作", "description": "邀请他人使用账户全部设备任务只有 60% 完成率。用户默认从单个设备分享进入，不理解批量共享实际属于家庭成员管理。", "evidence": ["任务 T8 完成率 60%（3/5）。", "用户多次在插件页、我的-分享、首页家庭入口之间往返。", "QR code 和图片分享入口未被点击，分享方式认知弱。"], "shortTerm": "在单设备分享页提示“仅分享当前设备”，并提供“邀请成员管理全部设备”的跳转入口。", "longTerm": "重构分享体系，区分“单设备分享”和“家庭成员管理”，减少重复入口，并强化家庭概念说明。"}, {"id": "#4", "title": "绑定与 SD 卡格式化流程文案技术化，造成高风险误操作", "severity": "P1", "dimension": "错误恢复 / 设备初始化", "description": "正常绑定任务虽全部成功，但多位用户被 SD card abnormal、格式化列表跳转、推出 SD 卡等流程干扰。成功率掩盖了高风险误操作。", "evidence": ["任务 T2 完成率 100%，但平均耗时 2:05。", "用户将“SD卡异常”理解为卡有问题，而非初始化/格式化。", "用户进入列表后误点“推出 SD 卡”，只能手动拔插。"], "shortTerm": "将“SD卡异常”改为“检测到 SD 卡，是否立即格式化并用于录像？”并提供直接确认按钮。", "longTerm": "将 SD 卡初始化嵌入绑定/直播首屏流程，避免跳转到复杂列表。"}, {"id": "#5", "title": "注册入口和密码规则提示不足，导致早期账户创建摩擦", "severity": "P1", "dimension": "账号注册 / 表单引导", "description": "注册任务全部成功，但 5 位用户均出现登录框误判、验证码按钮忽略或密码规则反复调整等摩擦。", "evidence": ["任务 T1 完成率 100%，平均耗时 1:44。", "多位用户先在登录框输入账号，随后才发现注册入口。", "密码要求高且提示不够前置，用户反复调整。"], "shortTerm": "将注册与登录设为同级入口；验证码按钮强化视觉权重；密码规则常驻显示在输入框下方。", "longTerm": "优化账户创建流程为“手机号/邮箱 > 验证码 > 设置密码”的分步表单，减少同屏认知负担。"}, {"id": "#6", "title": "直播页云台、360 全景与收藏点符号相互干扰", "severity": "P1", "dimension": "视觉感知 / 交互引导", "description": "宠物画面对准任务全部完成，但 4/5 用户先误点 360 全景或在直播加载未完成时尝试云台，说明直播页工具语义不稳定。", "evidence": ["任务 T4 完成率 100%，但多位用户先点击 360 图标再操作云台。", "用户在直播加载中尝试云台，误以为操作失败。", "原建议明确提出优化 360 全景图标，减少与云台关联。"], "shortTerm": "直播加载中禁用云台并显示“视频加载完成后可控制”；为 360 全景和云台增加文字标签。", "longTerm": "重构直播页工具区，将云台控制、全景生成、收藏点、录像入口分组展示。"}, {"id": "#7", "title": "回放删除路径可完成但与预期不符，视频管理模型分散", "severity": "P2", "dimension": "回放 / 视频管理", "description": "删除人形视频任务 5/5 成功，但用户没有使用预期的存储管理批量删除和事件筛选，而是通过回放或事件页绕行。", "evidence": ["任务 T7 完成率 100%，平均耗时 0:34。", "用户在回放中寻找编辑功能，最终进入事件页单独删除。", "“存储管理”名称无法清楚表达这里可以管理录像。"], "shortTerm": "在回放页增加“编辑/删除”入口，并暴露人形/事件筛选。", "longTerm": "整合回放、事件、存储管理为统一“录像库”，支持筛选、批量管理和删除。"}, {"id": "#8", "title": "文案、翻译和轻量反馈问题持续增加用户解释成本", "severity": "P2", "dimension": "内容设计 / 状态反馈", "description": "Toast 消失过快、Time settings 翻译不准确、删除设备与解绑含义不清等问题横跨多个任务，增加用户理解成本。", "evidence": ["异常绑定中用户质疑“删除设备”是否等于解绑。", "Time settings 被误解为录制时间设置。", "网络错误 toast 太快，用户以为是自己操作问题。"], "shortTerm": "对高频误解文案进行专项修订，延长关键 toast 停留时间并提供可恢复入口。", "longTerm": "建立 Anona App 术语库和错误反馈规范，覆盖账号、设备、SD 卡、侦测、录制、分享。"}], "roadmap": [["#1", "报警关闭任务完全失败，缺少清晰总开关与主从层级", "P0", "高", "中", "立即执行"], ["#2", "全天候录制入口隐藏，录制模式与用户心智严重错位", "P0", "高", "中", "立即执行"], ["#3", "家庭/分享路径成功率低，单设备分享与家庭共享混淆", "P1", "高", "中", "近期迭代"], ["#4", "绑定与 SD 卡格式化流程文案技术化，造成高风险误操作", "P1", "高", "中", "近期迭代"], ["#5", "注册入口和密码规则提示不足，导致早期账户创建摩擦", "P1", "高", "中", "近期迭代"], ["#6", "直播页云台、360 全景与收藏点符号相互干扰", "P1", "高", "中", "近期迭代"], ["#7", "回放删除路径可完成但与预期不符，视频管理模型分散", "P2", "中", "低", "中后期迭代"], ["#8", "文案、翻译和轻量反馈问题持续增加用户解释成本", "P2", "中", "低", "中后期迭代"]]};
-    const severityMeta = {
-      P0: { label: '关键阻断', desc: '阻碍核心任务完成，造成严重安全/信任风险，或直接影响转化与留存。需要立即处理。' },
-      P1: { label: '高影响问题', desc: '显著干扰重要任务或影响多数用户，但仍存在绕行路径。应进入最近一次迭代。' },
-      P2: { label: '中等影响问题', desc: '造成困惑、额外操作、重复错误或局部体验摩擦。排在 P0/P1 之后处理。' },
-      P3: { label: '低影响优化', desc: '主要是文案、视觉、细节打磨或边缘场景摩擦。可与常规优化合并处理。' }
-    };
-    const sevClass = s => s === 'P0' ? 'bg-rose-50 text-rose-700' : s === 'P1' ? 'bg-amber-50 text-amber-700' : s === 'P2' ? 'bg-slate-100 text-slate-700' : 'bg-slate-50 text-slate-500';
-    const sevLabel = s => `${s} · ${(severityMeta[s] || {}).label || '未定义'}`;
-    reportData.severityDistribution = ['P0','P1','P2','P3'].map(level => ({ level, count: (reportData.severityDistribution.find(i => i.level === level) || { count: 0 }).count }));
-    document.getElementById('sampleSize').textContent = reportData.metrics.sampleSize;
-    document.getElementById('completionKpi').textContent = reportData.metrics.completion + '%';
-    document.getElementById('completionSub').textContent = `${reportData.metrics.successTotal}/${reportData.metrics.recordCount} 条任务成功`;
-    document.getElementById('avgTimeKpi').textContent = reportData.metrics.avgTime;
+    <!-- ==================== Day 1 产品线 ==================== -->
+    <section class="section" id="products">
+        <div class="section-header fade-in">
+            <div class="section-number">产品线导向</div>
+            <h2 class="section-title">三条产品线核心体验指标</h2>
+            <p class="section-desc">各产品线需建立差异化体验基准，由产品经理作为Owner维护</p>
+        </div>
+        <div class="product-grid">
+            <div class="product-card fade-in">
+                <div class="product-card-header">
+                    <div class="product-card-icon red">📷</div>
+                    <div class="product-card-name">行车记录仪</div>
+                </div>
+                <div class="product-metrics">
+                    <span class="product-metric"><span class="product-metric-dot red"></span>随时查看</span>
+                    <span class="product-metric"><span class="product-metric-dot blue"></span>夜间清晰度</span>
+                    <span class="product-metric"><span class="product-metric-dot orange"></span>配网稳定性</span>
+                    <span class="product-metric"><span class="product-metric-dot green"></span>AI事件识别</span>
+                    <span class="product-metric"><span class="product-metric-dot purple"></span>Vlog自动生成</span>
+                </div>
+                <div class="product-focus">
+                    <strong>核心导向：</strong>「任务完成」优先于参数堆砌。用户核心诉求是事故发生时「随时能查到录像」，
+                    而非4K分辨率。夜间逆光场景的定责能力、停车监控的可靠性是差异化关键。
+                    AI自动生成行车Vlog是提升C端传播价值的创新方向。
+                </div>
+            </div>
+            <div class="product-card fade-in">
+                <div class="product-card-header">
+                    <div class="product-card-icon blue">🔒</div>
+                    <div class="product-card-name">安防摄像头</div>
+                </div>
+                <div class="product-metrics">
+                    <span class="product-metric"><span class="product-metric-dot red"></span>数据安全</span>
+                    <span class="product-metric"><span class="product-metric-dot blue"></span>隐私保护</span>
+                    <span class="product-metric"><span class="product-metric-dot green"></span>远程看护</span>
+                    <span class="product-metric"><span class="product-metric-dot orange"></span>异常检测</span>
+                    <span class="product-metric"><span class="product-metric-dot purple"></span>安装便捷</span>
+                </div>
+                <div class="product-focus">
+                    <strong>核心导向：</strong>安全 + 隐私 + 远程看护三位一体。数据安全与隐私保护是信任基石，
+                    必须优先保留物理实现方案（如物理遮挡）。异常行为AI检测（如宠物跑丢、老人跌倒）是核心价值，
+                    安装便捷性直接影响用户首次体验。
+                </div>
+            </div>
+            <div class="product-card fade-in">
+                <div class="product-card-header">
+                    <div class="product-card-icon green">🐾</div>
+                    <div class="product-card-name">宠物设备</div>
+                </div>
+                <div class="product-metrics">
+                    <span class="product-metric"><span class="product-metric-dot green"></span>异常提醒</span>
+                    <span class="product-metric"><span class="product-metric-dot red"></span>情感连接</span>
+                    <span class="product-metric"><span class="product-metric-dot blue"></span>续航可靠</span>
+                    <span class="product-metric"><span class="product-metric-dot orange"></span>远程互动</span>
+                    <span class="product-metric"><span class="product-metric-dot purple"></span>内容分享</span>
+                </div>
+                <div class="product-focus">
+                    <strong>核心导向：</strong>情感陪伴 + 异常守护。宠物主的核心焦虑是「不在家时发生了什么」，
+                    设备需提供可靠的异常行为提醒（拆家、呕吐、跑丢）。同时，萌宠内容的社交分享属性是天然的
+                    C端传播引擎，应纳入产品设计考量。
+                </div>
+            </div>
+        </div>
+    </section>
 
-    function renderSourceRows(){
-      document.getElementById('sourceRows').innerHTML = reportData.records.map(r => `<tr><td class="px-4 py-4 font-medium text-slate-900">${r.task}</td><td class="px-4 py-4">${r.tester}</td><td class="px-4 py-4"><span class="rounded-full ${r.result.includes('成功')?'bg-teal-50 text-teal-700':'bg-rose-50 text-rose-700'} px-2.5 py-1 text-xs font-semibold">${r.result}</span></td><td class="px-4 py-4">${r.timeRaw}</td><td class="px-4 py-4 text-slate-500">SEQ：未提供<br/>SUS：未提供</td><td class="px-4 py-4 max-w-[360px] whitespace-pre-line leading-6 text-slate-700">${r.evidence}</td><td class="px-4 py-4 max-w-[320px] whitespace-pre-line leading-6 text-slate-700">${r.solution}</td><td class="px-4 py-4"><div class="flex max-w-xs flex-wrap gap-1.5">${r.codes.map(c=>`<span class="rounded-full bg-teal-50 px-2 py-1 text-xs text-teal-700">${c}</span>`).join('')}</div></td></tr>`).join('');
-    }
-    function renderFindings(){
-      document.getElementById('findingCards').innerHTML = reportData.findings.map(f => `<article class="glass rounded-3xl p-6"><div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between"><div><div class="mb-2 text-sm font-semibold text-teal-700">${f.id} · ${f.dimension}</div><h3 class="text-xl font-semibold text-slate-950">${f.title}</h3></div><span class="w-fit rounded-full ${sevClass(f.severity)} px-3 py-1 text-sm font-semibold">${f.severity}</span></div><p class="mt-4 leading-7 text-slate-700">${f.description}</p><div class="mt-4 grid gap-4 lg:grid-cols-3"><div class="rounded-2xl bg-slate-50 p-4"><h4 class="mb-2 text-sm font-semibold">数据/行为证据</h4><ul class="space-y-2 text-sm leading-6 text-slate-600">${f.evidence.map(e=>`<li>• ${e}</li>`).join('')}</ul></div><div class="rounded-2xl bg-white/70 p-4 lg:col-span-2"><h4 class="mb-2 text-sm font-semibold">优化解决方案</h4><p class="text-sm leading-6 text-slate-700"><strong>短期应急：</strong>${f.shortTerm}</p><p class="mt-2 text-sm leading-6 text-slate-700"><strong>中长期根本：</strong>${f.longTerm}</p></div></div></article>`).join('');
-    }
-    function renderRoadmap(){
-      document.getElementById('roadmapRows').innerHTML = reportData.roadmap.map(r => `<tr><td class="px-4 py-4 font-semibold">${r[0]}</td><td class="px-4 py-4 text-slate-700">${r[1]}</td><td class="px-4 py-4"><span class="rounded-full ${sevClass(r[2])} px-3 py-1 text-xs font-semibold">${r[2]}</span></td><td class="px-4 py-4">${r[3]}</td><td class="px-4 py-4">${r[4]}</td><td class="px-4 py-4"><span class="rounded-full ${sevClass(r[2])} px-3 py-1 text-xs font-semibold">${r[5]}</span></td></tr>`).join('');
-    }
-    function renderSeverityGuide(){
-      document.getElementById('severityGuide').innerHTML = Object.entries(severityMeta).map(([level, meta]) => `<article class="rounded-2xl border border-slate-100 bg-white/75 p-4"><span class="rounded-full ${sevClass(level)} px-3 py-1 text-xs font-semibold">${level} · ${meta.label}</span><p class="mt-3 text-sm leading-6 text-slate-600">${meta.desc}</p></article>`).join('');
-    }
-    function renderFindings(){
-      document.getElementById('findingCards').innerHTML = reportData.findings.map(f => `<article class="glass rounded-3xl p-6"><div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between"><div><div class="mb-2 text-sm font-semibold text-teal-700">${f.id} · ${f.dimension}</div><h3 class="text-xl font-semibold text-slate-950">${f.title}</h3></div><span class="w-fit rounded-full ${sevClass(f.severity)} px-3 py-1 text-sm font-semibold">${sevLabel(f.severity)}</span></div><p class="mt-4 leading-7 text-slate-700">${f.description}</p><div class="mt-4 grid gap-4 lg:grid-cols-3"><div class="rounded-2xl bg-slate-50 p-4"><h4 class="mb-2 text-sm font-semibold">数据/行为证据</h4><ul class="space-y-2 text-sm leading-6 text-slate-600">${f.evidence.map(e=>`<li>• ${e}</li>`).join('')}</ul></div><div class="rounded-2xl bg-white/70 p-4 lg:col-span-2"><h4 class="mb-2 text-sm font-semibold">优化解决方案</h4><p class="text-sm leading-6 text-slate-700"><strong>短期应急：</strong>${f.shortTerm}</p><p class="mt-2 text-sm leading-6 text-slate-700"><strong>中长期根本：</strong>${f.longTerm}</p></div></div></article>`).join('');
-    }
-    function renderRoadmap(){
-      document.getElementById('roadmapRows').innerHTML = reportData.roadmap.map(r => `<tr><td class="px-4 py-4 font-semibold">${r[0]}</td><td class="px-4 py-4 text-slate-700">${r[1]}</td><td class="px-4 py-4"><span class="rounded-full ${sevClass(r[2])} px-3 py-1 text-xs font-semibold">${sevLabel(r[2])}</span></td><td class="px-4 py-4">${r[3]}</td><td class="px-4 py-4">${r[4]}</td><td class="px-4 py-4"><span class="rounded-full ${sevClass(r[2])} px-3 py-1 text-xs font-semibold">${r[5]}</span></td></tr>`).join('');
-    }
-    function charts(){
-      const centerText={id:'centerText',afterDraw(chart,args,opts){if(!opts?.text)return;const{ctx,chartArea}=chart;ctx.save();ctx.fillStyle=opts.color||'#0f172a';ctx.font='700 18px Inter, sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(opts.text,(chartArea.left+chartArea.right)/2,(chartArea.top+chartArea.bottom)/2);ctx.restore();}}; Chart.register(centerText);
-      new Chart(document.getElementById('completionChart'),{type:'doughnut',data:{labels:['成功','失败'],datasets:[{data:[reportData.metrics.successTotal,reportData.metrics.failTotal],backgroundColor:['#14b8a6','#f43f5e'],borderWidth:4,borderColor:'#fff'}]},options:{cutout:'68%',plugins:{legend:{position:'bottom'},centerText:{text:reportData.metrics.completion+'%'}}}});
-      new Chart(document.getElementById('timeChart'),{type:'bar',data:{labels:reportData.taskMetrics.map(t=>t.id),datasets:[{label:'平均耗时（秒）',data:reportData.taskMetrics.map(t=>t.avgSeconds||0),backgroundColor:'#0ea5e9',borderRadius:10}]},options:{maintainAspectRatio:false,scales:{y:{beginAtZero:true,grid:{color:'#eef2f7'}},x:{grid:{display:false}}},plugins:{legend:{display:false},tooltip:{callbacks:{title:ctx=>reportData.taskMetrics[ctx[0].dataIndex].task,label:ctx=>`平均耗时：${reportData.taskMetrics[ctx.dataIndex].avgTime}（${reportData.taskMetrics[ctx.dataIndex].timeSample} 条记录）`}}}}});
-      new Chart(document.getElementById('issueChart'),{type:'bar',data:{labels:reportData.issueFrequencies.map(i=>i.label),datasets:[{data:reportData.issueFrequencies.map(i=>i.count),backgroundColor:'#14b8a6',borderRadius:10}]},options:{indexAxis:'y',maintainAspectRatio:false,scales:{x:{beginAtZero:true,grid:{color:'#eef2f7'}},y:{grid:{display:false}}},plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.raw} 条记录涉及`}}}}});
-      new Chart(document.getElementById('severityChart'),{type:'doughnut',data:{labels:reportData.severityDistribution.map(i=>sevLabel(i.level)),datasets:[{data:reportData.severityDistribution.map(i=>i.count),backgroundColor:['#ef4444','#f59e0b','#94a3b8','#cbd5e1'],borderWidth:4,borderColor:'#fff'}]},options:{cutout:'62%',plugins:{legend:{position:'bottom',labels:{usePointStyle:true,boxWidth:8}},centerText:{text:reportData.findings.length+' 问题'}}}});
-    }
-    function tabs(){const bs=[...document.querySelectorAll('.tab-btn')], ps=[...document.querySelectorAll('.tab-panel')];bs.forEach(b=>b.addEventListener('click',()=>{bs.forEach(x=>{x.classList.remove('tab-active');x.classList.add('text-slate-700')});b.classList.add('tab-active');b.classList.remove('text-slate-700');ps.forEach(p=>p.classList.toggle('hidden',p.id!==b.dataset.tab));}));}
-    renderSourceRows(); renderSeverityGuide(); renderFindings(); renderRoadmap(); charts(); tabs(); lucide.createIcons();
-  </script>
+    <!-- ==================== 分隔 ==================== -->
+    <div class="day-separator">
+        <div class="day-separator-badge">
+            <span style="width:6px;height:6px;background:var(--accent-purple);border-radius:50%;display:inline-block;animation:pulse 2s ease-in-out infinite;"></span>
+            下午课程
+        </div>
+    </div>
+
+    <!-- ==================== Day 2 上钩模型 ==================== -->
+    <section class="section" id="hook-model">
+        <div class="section-header fade-in">
+            <div class="section-number" style="color:var(--accent-purple);">上钩模型</div>
+            <h2 class="section-title">产品「上钩」四步闭环</h2>
+            <p class="section-desc">触发 → 行动 → 奖赏 → 投入，构建用户行为粘性的完整链路</p>
+        </div>
+
+        <div class="hook-grid">
+            <div class="hook-card fade-in">
+                <div class="hook-step s1">STEP 1</div>
+                <div class="hook-title">触发 Trigger</div>
+                <div class="hook-desc">
+                    <strong>外部触发：</strong>推送通知、社交排名、积分清零提醒<br><br>
+                    <strong>内部触发：</strong>健康焦虑、好奇心、社交攀比心<br><br>
+                    <em style="color:var(--text-tertiary);">核心：精准制造焦虑，再提供行动出口化解</em>
+                </div>
+            </div>
+            <div class="hook-card fade-in">
+                <div class="hook-step s2">STEP 2</div>
+                <div class="hook-title">行动 Action</div>
+                <div class="hook-desc">
+                    <strong>极简门槛：</strong>「带上即可」—— 越低门槛越容易建立连接<br><br>
+                    <strong>操作路径：</strong>开箱 → 配网 → 首次使用，每步必须丝滑<br><br>
+                    <em style="color:var(--text-tertiary);">核心：操作繁琐直接导致用户流失</em>
+                </div>
+            </div>
+            <div class="hook-card fade-in">
+                <div class="hook-step s3">STEP 3</div>
+                <div class="hook-title">奖赏 Reward</div>
+                <div class="hook-desc">
+                    <strong>变动奖励：</strong>社交排名、成就勋章、现金激励<br><br>
+                    <strong>即时反馈：</strong>AI健康建议、异常告警、驾驶评分<br><br>
+                    <em style="color:var(--text-tertiary);">核心：正向反馈闭环是产品成立的前提</em>
+                </div>
+            </div>
+            <div class="hook-card fade-in">
+                <div class="hook-step s4">STEP 4</div>
+                <div class="hook-title">投入 Investment</div>
+                <div class="hook-desc">
+                    <strong>时间投入：</strong>每日查看习惯、内容创作与分享<br><br>
+                    <strong>金钱投入：</strong>硬件购买、云存订阅、增值服务<br><br>
+                    <em style="color:var(--text-tertiary);">核心：沉没成本效应让用户越投入越忠诚</em>
+                </div>
+            </div>
+        </div>
+
+        <!-- 上钩模型案例 -->
+        <div class="insight-block">
+            <div class="insight-card fade-in">
+                <div class="insight-card-header">
+                    <div class="insight-icon purple">⌚</div>
+                    <div>
+                        <div class="insight-card-title">案例：智能手表（健康监测）</div>
+                        <div class="insight-card-subtitle">极致减法 × 精准数据 × AI建议 = 强粘性</div>
+                    </div>
+                </div>
+                <div class="insight-body">
+                    <ul>
+                        <li><strong>触发</strong> — 健康焦虑（心悸、睡眠质量差）是最强内部触发</li>
+                        <li><strong>行动</strong> — 砍掉屏幕、极致轻量化（25-28g），「带上即可」零学习成本</li>
+                        <li><strong>奖赏</strong> — 精准心率/血氧数据 + AI个性化健康建议，首月免费试用即见效</li>
+                        <li><strong>投入</strong> — 订阅制收费（硬件+服务），用户依赖每日建议离不开设备</li>
+                        <li><strong>结果</strong> — 120万活跃用户，靠精准数据打穿垂直市场，苹果至今未做到</li>
+                    </ul>
+                    <p style="margin-top:12px;font-size:13px;color:var(--accent-red);">
+                        ⚠️ 监管风险：精准健康数据游走在医疗与消费电子灰色地带，FDA监管是达摩克利斯之剑
+                    </p>
+                </div>
+            </div>
+
+            <div class="insight-card fade-in">
+                <div class="insight-card-header">
+                    <div class="insight-icon blue">🚗</div>
+                    <div>
+                        <div class="insight-card-title">案例：行车记录仪（违章举报）</div>
+                        <div class="insight-card-subtitle">情绪驱动 × 物质奖励 × 硬件引流</div>
+                    </div>
+                </div>
+                <div class="insight-body">
+                    <ul>
+                        <li><strong>触发</strong> — 目睹违章的不爽情绪 + 外部奖励（现金/积分）</li>
+                        <li><strong>行动</strong> — 手动导出视频 → 剪辑压缩 → 上传审核（当前痛点：全手动操作）</li>
+                        <li><strong>奖赏</strong> — 举报成功获得成就感 + 现金奖励 + 社区认可</li>
+                        <li><strong>投入</strong> — 购买4G记录仪 + 流量订阅 + 持续参与</li>
+                        <li><strong>商业闭环</strong> — 「硬件引流，服务变现」：设备销售 + 4G盒子 + 流量服务</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="insight-card fade-in">
+                <div class="insight-card-header">
+                    <div class="insight-icon green">🐾</div>
+                    <div>
+                        <div class="insight-card-title">案例：宠物喂食器</div>
+                        <div class="insight-card-subtitle">情感陪伴 × 社交分享 × 订阅锁定</div>
+                    </div>
+                </div>
+                <div class="insight-body">
+                    <ul>
+                        <li><strong>触发</strong> — 出粮声 + 高颜值硬件 + 健康报告推送 + 社群奖励</li>
+                        <li><strong>行动</strong> — 7步路径：看见 → 进食 → 看数据 → 生成视频 → 云存 → AI剪辑 → 发布</li>
+                        <li><strong>奖赏</strong> — 萌宠内容社交分享 + 多宠家庭分粮识别 + 进食监测</li>
+                        <li><strong>投入</strong> — 硬件购买 + 云存订阅 + 内容创作习惯</li>
+                        <li><strong>边界</strong> — 死磕智能硬件与增值服务，坚决不碰电商耗材模式</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== Day 2 服务蓝图 ==================== -->
+    <section class="section" id="service-blueprint">
+        <div class="section-header fade-in">
+            <div class="section-number" style="color:var(--accent-purple);">服务蓝图</div>
+            <h2 class="section-title">全链路服务设计</h2>
+            <p class="section-desc">从用户行为出发，串联前台、后台及支撑系统的完整链条，消除断点</p>
+        </div>
+
+        <div class="blueprint-flow">
+            <div class="blueprint-row">
+                <div class="blueprint-header" style="color:var(--accent-blue);">层级</div>
+                <div class="blueprint-header" style="color:var(--accent-blue);">用户行为</div>
+                <div class="blueprint-header" style="color:var(--accent-orange);">前台触点</div>
+                <div class="blueprint-header" style="color:var(--accent-purple);">后台 / 支撑系统</div>
+            </div>
+            <div class="blueprint-row">
+                <div class="blueprint-cell"><div class="blueprint-label">行车记录仪 · 异常事件</div></div>
+                <div class="blueprint-cell">行驶中触发事件 → 查看录像</div>
+                <div class="blueprint-cell">App推送告警 → 视频预览 → 分享/下载</div>
+                <div class="blueprint-cell">硬件录制 → 云端上传 → 本地AI识别 → 4G网络管理</div>
+            </div>
+            <div class="blueprint-row">
+                <div class="blueprint-cell"><div class="blueprint-label">宠物喂食器 · 出粮异常</div></div>
+                <div class="blueprint-cell">发现出粮不准 → 查看数据 → 联系客服</div>
+                <div class="blueprint-cell">App告警 → 客服引导排查 → FAQ知识库</div>
+                <div class="blueprint-cell highlight">IoT云平台自动导出异常记录 → 工单系统 → 研发定位（当前缺失自动预警）</div>
+            </div>
+            <div class="blueprint-row">
+                <div class="blueprint-cell"><div class="blueprint-label">智能门锁 · 安装部署</div></div>
+                <div class="blueprint-cell">预约安装 → 等待上门</div>
+                <div class="blueprint-cell">门店派单 → 技师上门 → 设备激活</div>
+                <div class="blueprint-cell">云端账号注册 → 信息存储 → ToB流程体验保障</div>
+            </div>
+            <div class="blueprint-row">
+                <div class="blueprint-cell"><div class="blueprint-label">断网故障 · 售后闭环</div></div>
+                <div class="blueprint-cell">设备离线 → 联系客服</div>
+                <div class="blueprint-cell">AI客服（易成断点）→ 转人工 → 日志上传</div>
+                <div class="blueprint-cell highlight">研发定位问题 → OTA推送修复 → 工单关闭（当前1-3人支撑1.2万设备）</div>
+            </div>
+        </div>
+
+        <div class="insight-block">
+            <div class="insight-card fade-in">
+                <div class="insight-card-header">
+                    <div class="insight-icon red">⚠️</div>
+                    <div>
+                        <div class="insight-card-title">服务断点的毁灭性后果</div>
+                        <div class="insight-card-subtitle">一个环节的疏忽可能引发连锁反应</div>
+                    </div>
+                </div>
+                <div class="insight-body">
+                    <ul>
+                        <li><strong>电视被黑事件</strong> — 导购顾问反应速度决定损失规模：快的及时断电止损，慢的仍在打电话，单日引发6万起投诉并被工信部约谈</li>
+                        <li><strong>玻璃底座爆裂</strong> — 降本时将底座换成易碎玻璃，夏季应力集中引发批量事故。正确做法：不计成本全量上门换新 + 贴防爆膜 + 赠送配件</li>
+                        <li><strong>违章举报失败</strong> — 糟糕的反馈机制（无自动压缩、审核不透明）直接扼杀用户参与意愿</li>
+                    </ul>
+                    <p style="margin-top:12px;font-size:13px;color:var(--accent-red);">
+                        ⚠️ 「卡量是个例」的侥幸心理是最大敌人。个例不迭代，必将演变为批量事故。
+                    </p>
+                </div>
+            </div>
+
+            <div class="insight-card fade-in">
+                <div class="insight-card-header">
+                    <div class="insight-icon cyan">🔗</div>
+                    <div>
+                        <div class="insight-card-title">服务蓝图的实操要求</div>
+                        <div class="insight-card-subtitle">以用户触点为起点，深挖前后台交互与优化方向</div>
+                    </div>
+                </div>
+                <div class="insight-body">
+                    <ul>
+                        <li><strong>起点必须是用户行为</strong> — 不是系统功能列表，是用户「做了什么」</li>
+                        <li><strong>拆解到10个小节点</strong> — 大节点无法量化，小节点才能明确指标</li>
+                        <li><strong>前台/后台/支撑系统三列对齐</strong> — 任一断点都是体验崩溃的隐患</li>
+                        <li><strong>落地证据必须明确</strong> — 如「订阅率」「配网成功率」「工单关闭率」</li>
+                        <li><strong>关注异常路径</strong> — 正常路径人人会走，异常路径才是区分体验高下的分水岭</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== Day 2 案例 ==================== -->
+    <section class="section" id="casestudies">
+        <div class="section-header fade-in">
+            <div class="section-number" style="color:var(--accent-purple);">案例拆解</div>
+            <h2 class="section-title">失败与成功的对照</h2>
+            <p class="section-desc">以真实产品为镜，照见定位、定价与用户体验的底层逻辑</p>
+        </div>
+
+        <div class="case-grid">
+            <div class="case-card fail fade-in">
+                <div class="case-card-header">
+                    <div class="case-icon fail">❌</div>
+                    <div class="case-name">Humane Ai Pin</div>
+                </div>
+                <div class="case-lesson">
+                    <strong>失败原因：</strong>定位模糊、技术成熟度存疑、市场需求不明。<br><br>
+                    靠「干掉手机」的宏大叙事融资，从研发到退市仅一年多。无屏交互虽前卫，
+                    但未明确解决什么具体痛点，定价无法打开大众市场。<br><br>
+                    <span class="case-tag fail">教训：光有噱头终究难逃昙花一现</span>
+                </div>
+            </div>
+            <div class="case-card fail fade-in">
+                <div class="case-card-header">
+                    <div class="case-icon fail">❌</div>
+                    <div class="case-name">谷歌眼镜</div>
+                </div>
+                <div class="case-lesson">
+                    <strong>失败原因：</strong>目标人群模糊，售价1500美元远超大众承受力。<br><br>
+                    虽主打便携与语音交互，但未锚定具体场景痛点（如开车录像、第一视角记录），
+                    用户不知道「这东西到底帮我解决什么问题」。<br><br>
+                    <span class="case-tag fail">教训：脱离目标用户承受力的高价 = 自毁长城</span>
+                </div>
+            </div>
+            <div class="case-card fail fade-in">
+                <div class="case-card-header">
+                    <div class="case-icon fail">❌</div>
+                    <div class="case-name">Solo榨汁机</div>
+                </div>
+                <div class="case-lesson">
+                    <strong>失败原因：</strong>定位卡在尴尬中间地带。<br><br>
+                    目标用户既非追求健康愿动手的高净值人群，也非图省事的忙碌族。
+                    售价高昂 + 需持续购买耗材，性价比远不如超市果汁。<br><br>
+                    <span class="case-tag fail">教训：想赚所有人的钱，最后谁也没讨好</span>
+                </div>
+            </div>
+            <div class="case-card success fade-in">
+                <div class="case-card-header">
+                    <div class="case-icon success">✅</div>
+                    <div class="case-name">特斯拉交付体验</div>
+                </div>
+                <div class="case-lesson">
+                    <strong>成功要素：</strong>APP一键下单 → 专员引导 → 保险讲解 → 试驾，全链路无缝衔接。<br><br>
+                    单日交付600+台，远超传统4S店单月销量。数字化流程对效率的颠覆性提升：
+                    前台极致简洁，后台系统极度复杂。<br><br>
+                    <span class="case-tag success">启示：前台越简单，后台越需要强大支撑</span>
+                </div>
+            </div>
+            <div class="case-card success fade-in">
+                <div class="case-card-header">
+                    <div class="case-icon success">✅</div>
+                    <div class="case-name">星巴克服务蓝图</div>
+                </div>
+                <div class="case-lesson">
+                    <strong>成功要素：</strong>从线上查找 → 定位门店 → 进店点单 → 支付 → 取餐，全链路触点精心设计。<br><br>
+                    VI视觉与纸杯等物料高度一致，品牌符号带来溢价感。支付系统作为核心节点，
+                    扫码卡顿将直接破坏体验。<br><br>
+                    <span class="case-tag success">启示：前台体验的丝滑，全靠后台系统强力托底</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== Day 2 GPT策略 ==================== -->
+    <section class="section" id="gpt-strategy">
+        <div class="section-header fade-in">
+            <div class="section-number" style="color:var(--accent-purple);">GPT策略</div>
+            <h2 class="section-title">产品定位与商业化策略</h2>
+            <p class="section-desc">先有卖点再有功能，用一句话击穿用户心智</p>
+        </div>
+
+        <div class="strategy-grid">
+            <div class="strategy-card fade-in">
+                <div class="strategy-card-title">🎯 先有卖点，再有功能</div>
+                <div class="strategy-card-desc">
+                    <strong>核心原则：</strong>从用户核心任务出发，提炼一句大白话卖点，再匹配硬件功能。<br><br>
+                    ❌ 错误做法：堆砌「索尼传感器IMX678」「6层镜片」等晦涩参数<br>
+                    ✅ 正确做法：「夜间清晰取证，事故责任一目了然」<br><br>
+                    <strong>场景化话术 > 技术原理：</strong>老人看护产品不说「AI芯片」，说「窗帘不乱弹窗」。
+                </div>
+            </div>
+            <div class="strategy-card fade-in">
+                <div class="strategy-card-title">👤 精准用户画像</div>
+                <div class="strategy-card-desc">
+                    <strong>画像不能通缩整条产品线：</strong>不同角色需细分，评估各自市场规模。<br><br>
+                    <strong>案例：</strong>车队管理需明确服务谁——老板（看成本）、职业经理人（看效率）、司机（看体验），诉求截然不同。<br><br>
+                    <strong>GPT策略：</strong>直销 + 分销 + 分润组合拳，与当地「对的人」（如协会会长）建立合作。
+                </div>
+            </div>
+            <div class="strategy-card fade-in">
+                <div class="strategy-card-title">💰 定价与考核机制</div>
+                <div class="strategy-card-desc">
+                    <strong>定价即定位：</strong>百元尝鲜价测试受众购买意愿，价格与人群认知、付费意愿强绑定。<br><br>
+                    <strong>考核制衡：</strong>销售跑量 + PM考核毛利，防止销售既当裁判又当运动员。<br><br>
+                    <strong>商业闭环：</strong>消费电子必须追求销量，目标客群规模过小则投入开发毫无意义。
+                </div>
+            </div>
+        </div>
+
+        <!-- PM精力分配 -->
+        <div class="pm-role fade-in">
+            <div class="pm-role-title">⚡ PM精力分配现状 vs 正确姿态</div>
+            <div class="pm-role-grid">
+                <div class="pm-role-item">
+                    <div class="pm-role-pct red">10%</div>
+                    <div class="pm-role-label">当前：战场洞察</div>
+                </div>
+                <div class="pm-role-item">
+                    <div class="pm-role-pct orange">70%</div>
+                    <div class="pm-role-label">当前：研发供应链执行</div>
+                </div>
+                <div class="pm-role-item">
+                    <div class="pm-role-pct red">20%</div>
+                    <div class="pm-role-label">当前：其他</div>
+                </div>
+                <div class="pm-role-item">
+                    <div class="pm-role-pct blue">50%</div>
+                    <div class="pm-role-label">→ 应：用户洞察</div>
+                </div>
+                <div class="pm-role-item">
+                    <div class="pm-role-pct green">25%</div>
+                    <div class="pm-role-label">→ 应：GPM运营</div>
+                </div>
+                <div class="pm-role-item">
+                    <div class="pm-role-pct orange">25%</div>
+                    <div class="pm-role-label">→ 应：研发协同</div>
+                </div>
+            </div>
+            <div class="pm-role-note">
+                ⚠️ 当前团队重「找机会」轻「落地运营」，前期挖掘的机会将沦为他人的嫁衣。
+                PM深度参与软硬件架构搭建属于明显越界，行业常态应是聚焦战场洞察。
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== 执行红线 ==================== -->
+    <section class="section" id="redlines">
+        <div class="section-header fade-in">
+            <div class="section-number">执行红线</div>
+            <h2 class="section-title">不可逾越的十二条底线</h2>
+            <p class="section-desc">所有功能设计必须遵循以下红线，违反任一条即为设计缺陷</p>
+        </div>
+        <div class="redline-list">
+            <div class="redline-item fade-in">
+                <div class="redline-num">1</div>
+                <div class="redline-text"><strong>一步完成原则</strong> — 核心操作必须在一步内完成，两步及以上直接判定为设计缺陷。</div>
+            </div>
+            <div class="redline-item fade-in">
+                <div class="redline-num">2</div>
+                <div class="redline-text"><strong>隐私优先物理方案</strong> — 隐私保护功能优先保留物理实现方案，用户需要「看得见的安全感」。</div>
+            </div>
+            <div class="redline-item fade-in">
+                <div class="redline-num">3</div>
+                <div class="redline-text"><strong>配网稳定性底线</strong> — 弱网环境下的配网成功率生死线，必须在2分钟内完成，失败率低于1%。</div>
+            </div>
+            <div class="redline-item fade-in">
+                <div class="redline-num">4</div>
+                <div class="redline-text"><strong>安装步骤 ≤ 3步</strong> — 任何硬件安装操作不得超过3步，每步必须有清晰视觉指引。</div>
+            </div>
+            <div class="redline-item fade-in">
+                <div class="redline-num">5</div>
+                <div class="redline-text"><strong>拒绝伪创新功能</strong> — 所有新增功能必须通过三角形模型验证，禁止为营销话术堆砌华而不实的功能。</div>
+            </div>
+            <div class="redline-item fade-in">
+                <div class="redline-num">6</div>
+                <div class="redline-text"><strong>营销-实物零落差</strong> — 线上展示功能必须与实物体验完全一致，禁止过度承诺。</div>
+            </div>
+            <div class="redline-item fade-in">
+                <div class="redline-num">7</div>
+                <div class="redline-text"><strong>数据主权归用户</strong> — 所有用户数据必须支持本地存储和导出，云存储仅为增值选项。</div>
+            </div>
+            <div class="redline-item fade-in">
+                <div class="redline-num">8</div>
+                <div class="redline-text"><strong>无障碍基础保障</strong> — 关键功能必须支持语音播报/大字体模式，确保视障、老年用户可完成核心操作。</div>
+            </div>
+            <div class="redline-item fade-in">
+                <div class="redline-num">9</div>
+                <div class="redline-text"><strong>服务断点零容忍</strong> — 任一服务断点（如AI客服死循环、工单无人接）都可能导致体验全面崩溃，必须前置设计兜底机制。</div>
+            </div>
+            <div class="redline-item fade-in">
+                <div class="redline-num">10</div>
+                <div class="redline-text"><strong>后台不可见≠不重要</strong> — 配网失败、日志上传、OTA推送等后台链路虽用户无感，却是体验生死线。</div>
+            </div>
+            <div class="redline-item fade-in">
+                <div class="redline-num">11</div>
+                <div class="redline-text"><strong>降本不可牺牲质量</strong> — 为短期利益降低物料标准（如易碎玻璃底座）将引发批量事故，毁灭品牌声誉。</div>
+            </div>
+            <div class="redline-item fade-in">
+                <div class="redline-num">12</div>
+                <div class="redline-text"><strong>个例必须迭代</strong> — 「卡量是个例」的侥幸心理是最大敌人，不及时迭代个例必演变为批量事故。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== 落地计划 ==================== -->
+    <section class="section" id="actions">
+        <div class="section-header fade-in">
+            <div class="section-number">落地计划</div>
+            <h2 class="section-title">后续执行要求</h2>
+            <p class="section-desc">明确责任人、时间节点与交付物</p>
+        </div>
+        <div class="action-grid">
+            <div class="action-card fade-in">
+                <div class="action-card-top">
+                    <div class="action-card-num">1</div>
+                    <div class="action-card-title">体验基准建设</div>
+                </div>
+                <div class="action-card-desc">各小组围绕负责产品线，明确核心导向，建立可量化的体验基准。<br><strong>Owner：各产品线产品经理</strong></div>
+            </div>
+            <div class="action-card fade-in">
+                <div class="action-card-top">
+                    <div class="action-card-num">2</div>
+                    <div class="action-card-title">用户画像共创</div>
+                </div>
+                <div class="action-card-desc">完成临时用户画像，区分不同人群核心需求差异。<br><strong>时间：下午共创前</strong></div>
+            </div>
+            <div class="action-card fade-in">
+                <div class="action-card-top">
+                    <div class="action-card-num">3</div>
+                    <div class="action-card-title">上钩模型作业</div>
+                </div>
+                <div class="action-card-desc">各小组按模板完成产品「上钩」模型分析报告。<br><strong>Owner：E组 汪正贤 · 一周内提交</strong></div>
+            </div>
+            <div class="action-card fade-in">
+                <div class="action-card-top">
+                    <div class="action-card-num">4</div>
+                    <div class="action-card-title">服务蓝图作业</div>
+                </div>
+                <div class="action-card-desc">各小组围绕各自产品绘制完整服务蓝图，覆盖前后台全链路。<br><strong>Owner：E组 汪正贤 · 一周内提交（自愿）</strong></div>
+            </div>
+            <div class="action-card fade-in">
+                <div class="action-card-top">
+                    <div class="action-card-num">5</div>
+                    <div class="action-card-title">GPT策略梳理</div>
+                </div>
+                <div class="action-card-desc">从上午的「用户任务」中提炼一个核心任务，用一句话概括卖点。<br><strong>原则：先有卖点，再有功能</strong></div>
+            </div>
+            <div class="action-card fade-in">
+                <div class="action-card-top">
+                    <div class="action-card-num">6</div>
+                    <div class="action-card-title">课程反馈</div>
+                </div>
+                <div class="action-card-desc">会后扫码填写问卷，对课程进行评价与反馈。<br><strong>形式：扫码在线问卷</strong></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== 关键共识 ==================== -->
+    <section class="section">
+        <div class="consensus-banner fade-in">
+            <div class="consensus-banner-title">关键共识</div>
+            <div class="consensus-banner-text">
+                产品竞争力的本质是「体验基准的持续拔高」<br>
+                而非单一功能或参数的领先
+            </div>
+            <p style="margin-top:20px;font-size:14px;color:var(--text-secondary);position:relative;line-height:1.7;">
+                短期可借供应链快速落地，长期必须建立自己的产品文化、质量标准与系统化支撑能力。<br>
+                优秀体验 = 硬件 × 软件 × 服务 的系统级交付，任一维度的短板都会拉低整体评分。<br>
+                PM必须把50%精力投入战场洞察，用「上钩模型 + 服务蓝图 + GPT策略」构建完整方法论体系。
+            </p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-text">猫鼬工厂 · 产品体验设计课程完整纪要</div>
+        <div class="footer-brand">结论先行 · 方法论支撑 · 落地可执行</div>
+    </footer>
+
+    <script>
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) { entry.target.classList.add('visible'); }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+        document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = document.querySelector(link.getAttribute('href'));
+                if (target) { target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+            });
+        });
+    </script>
 </body>
 </html>
