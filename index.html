@@ -50,10 +50,6 @@
         ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: #444; }
 
-        /* Day 2 accent */
-        .day2-badge { background: rgba(139, 92, 246, 0.15) !important; color: var(--accent-purple) !important; border-color: rgba(139, 92, 246, 0.3) !important; }
-        .day2-tag { background: rgba(139, 92, 246, 0.15) !important; color: var(--accent-purple) !important; }
-
         /* Navigation */
         .nav {
             position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
@@ -68,6 +64,19 @@
         .nav-links { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; }
         .nav-link { padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; color: var(--text-secondary); text-decoration: none; transition: all 0.2s ease; }
         .nav-link:hover { color: var(--text-primary); background: rgba(255,255,255,0.06); }
+
+        /* Page View Counter */
+        .page-view-counter {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 6px 14px; background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border-color); border-radius: 100px;
+            font-size: 12px; font-weight: 500; color: var(--text-tertiary);
+            position: relative; z-index: 1; margin-left: 12px;
+            transition: all 0.3s ease;
+        }
+        .page-view-counter:hover { border-color: var(--border-light); color: var(--text-secondary); }
+        .page-view-counter svg { width: 14px; height: 14px; opacity: 0.6; }
+        .page-view-counter .view-count { font-variant-numeric: tabular-nums; min-width: 24px; text-align: center; }
 
         /* Hero */
         .hero {
@@ -99,20 +108,7 @@
         @keyframes bounce { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(8px); } }
         .scroll-indicator svg { width: 20px; height: 20px; opacity: 0.4; }
 
-        /* Day separator */
-        .day-separator {
-            text-align: center; padding: 60px 24px 20px; position: relative;
-        }
-        .day-separator::before {
-            content: ''; position: absolute; left: 50%; top: 0;
-            width: 1px; height: 40px; background: linear-gradient(to bottom, transparent, var(--border-color));
-        }
-        .day-separator-badge {
-            display: inline-flex; align-items: center; gap: 8px;
-            padding: 8px 20px; border-radius: 100px;
-            background: rgba(139, 92, 246, 0.12); border: 1px solid rgba(139, 92, 246, 0.25);
-            font-size: 13px; font-weight: 600; color: var(--accent-purple); letter-spacing: 1px;
-        }
+
 
         /* Section */
         .section { padding: 100px 24px; max-width: 1200px; margin: 0 auto; }
@@ -352,9 +348,19 @@
 
     <!-- ==================== HERO ==================== -->
     <section class="hero">
-        <div class="hero-badge">
-            <span class="hero-badge-dot"></span>
-            完整纪要
+        <div style="display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:12px;margin-bottom:32px;position:relative;z-index:1;">
+            <div class="hero-badge" style="margin-bottom:0;">
+                <span class="hero-badge-dot"></span>
+                完整纪要
+            </div>
+            <div class="page-view-counter" id="pageViewCounter" title="页面阅读量">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                </svg>
+                <span class="view-count" id="viewCount">--</span>
+                <span>次阅读</span>
+            </div>
         </div>
         <h1 class="hero-title">
             <span class="hero-title-gradient">产品体验设计</span><br>
@@ -872,14 +878,6 @@
             </div>
         </div>
     </section>
-
-    <!-- ==================== 分隔 ==================== -->
-    <div class="day-separator">
-        <div class="day-separator-badge">
-            <span style="width:6px;height:6px;background:var(--accent-purple);border-radius:50%;display:inline-block;animation:pulse 2s ease-in-out infinite;"></span>
-            下午课程
-        </div>
-    </div>
 
     <!-- ==================== Day 2 上钩模型 ==================== -->
     <section class="section" id="hook-model">
@@ -1409,6 +1407,71 @@
     </footer>
 
     <script>
+        // ===== 页面阅读量计数器 =====
+        (function() {
+            const countEl = document.getElementById('viewCount');
+            const namespace = 'maongoose-ux-course';
+            const key = 'page-views';
+            const STORAGE_KEY = 'mv_ux_page_viewed';
+
+            // 使用 CountAPI (countapi.xyz) 进行全局计数
+            async function fetchGlobalCount() {
+                try {
+                    // 先获取当前计数
+                    const getResp = await fetch(`https://api.countapi.xyz/get/${namespace}/${key}`);
+                    if (getResp.ok) {
+                        const data = await getResp.json();
+                        const count = data.value || 0;
+                        // 如果是新访客（localStorage无标记），则+1
+                        if (!localStorage.getItem(STORAGE_KEY)) {
+                            const hitResp = await fetch(`https://api.countapi.xyz/hit/${namespace}/${key}`);
+                            if (hitResp.ok) {
+                                const hitData = await hitResp.json();
+                                updateDisplay(hitData.value);
+                                localStorage.setItem(STORAGE_KEY, '1');
+                                return;
+                            }
+                        }
+                        updateDisplay(count);
+                        return;
+                    }
+                } catch (e) {
+                    // CountAPI 不可用时使用 localStorage 作为 fallback
+                    console.log('CountAPI unreachable, using local counter');
+                }
+                fallbackLocalCounter();
+            }
+
+            function fallbackLocalCounter() {
+                let localCount = parseInt(localStorage.getItem('mv_ux_local_count') || '0');
+                if (!localStorage.getItem(STORAGE_KEY)) {
+                    localCount += 1;
+                    localStorage.setItem('mv_ux_local_count', localCount.toString());
+                    localStorage.setItem(STORAGE_KEY, '1');
+                }
+                updateDisplay(localCount);
+            }
+
+            function updateDisplay(count) {
+                if (countEl) {
+                    // 数字格式化
+                    if (count >= 10000) {
+                        countEl.textContent = (count / 10000).toFixed(1) + '万';
+                    } else if (count >= 1000) {
+                        countEl.textContent = (count / 1000).toFixed(1) + 'k';
+                    } else {
+                        countEl.textContent = count;
+                    }
+                }
+            }
+
+            // 启动计数器
+            if (countEl) {
+                fetchGlobalCount();
+            }
+        })();
+
+        // ===== 滚动动画 =====
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) { entry.target.classList.add('visible'); }
@@ -1416,6 +1479,7 @@
         }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
         document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
 
+        // ===== 导航平滑滚动 =====
         document.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
